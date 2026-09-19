@@ -159,7 +159,132 @@ def calculate_financial_summary():
     }
 
 
+def generate_insights():
 
+    insights = []
+
+    connection = get_db_connection()
+
+    budgets = connection.execute("""
+        SELECT category, amount
+        FROM budgets
+    """).fetchall()
+
+    for budget in budgets:
+
+        spent = connection.execute("""
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 'expense'
+            AND category = ?
+        """, (budget["category"],)).fetchone()[0]
+
+        budget_amount = budget["amount"]
+
+        if budget_amount <= 0:
+            continue
+
+        percentage = (
+            spent / budget_amount
+        ) * 100
+
+        if percentage > 100:
+
+            insights.append({
+                "type": "danger",
+                "title": "Budget Exceeded",
+                "message":
+                    f"You exceeded your "
+                    f"{budget['category']} budget by "
+                    f"₹{spent - budget_amount:.2f}."
+            })
+
+        elif percentage >= 80:
+
+            insights.append({
+                "type": "warning",
+                "title": "Budget Alert",
+                "message":
+                    f"You have used "
+                    f"{percentage:.0f}% of your "
+                    f"{budget['category']} budget."
+            })
+
+    connection.close()
+
+    summary = calculate_financial_summary()
+
+    if summary["income"] > 0:
+
+        if summary["savings_rate"] < 20:
+
+            insights.append({
+                "type": "warning",
+                "title": "Savings Opportunity",
+                "message":
+                    "Your current savings rate is below 20%."
+            })
+
+        elif summary["savings_rate"] >= 30:
+
+            insights.append({
+                "type": "positive",
+                "title": "Strong Savings",
+                "message":
+                    f"You're currently saving "
+                    f"{summary['savings_rate']:.1f}% "
+                    f"of your income."
+            })
+
+    return insights
+
+
+def calculate_financial_health():
+
+    summary = calculate_financial_summary()
+
+    score = 50
+
+    if summary["savings_rate"] >= 30:
+        score += 20
+
+    elif summary["savings_rate"] >= 20:
+        score += 10
+
+    elif summary["savings_rate"] < 10:
+        score -= 10
+
+    if summary["balance"] < 0:
+        score -= 20
+
+    score = max(0, min(score, 100))
+
+    if score >= 75:
+        status = "Good Health"
+
+    elif score >= 50:
+        status = "Moderate Health"
+
+    else:
+        status = "Needs Attention"
+
+    return {
+        "score": score,
+        "status": status
+    }
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/api/test")
+def api_test():
+
+    return jsonify({
+        "message": "FinFlow backend connected",
+        "status": "success"
+    })
 
 
 
