@@ -285,6 +285,149 @@ def api_test():
         "message": "FinFlow backend connected",
         "status": "success"
     })
+@app.route("/api/transactions", methods=["POST"])
+def add_transaction():
+
+    data = request.get_json()
+
+    transaction_type = data.get("type")
+    amount = data.get("amount")
+    category = data.get("category")
+    description = data.get("description", "")
+    date = data.get("date")
+
+    if not transaction_type or not amount or not date:
+        return jsonify({
+            "success": False,
+            "message": "Missing required fields"
+        }), 400
+
+    if not category:
+        category = categorize_transaction(description)
+
+    connection = get_db_connection()
+
+    connection.execute("""
+        INSERT INTO transactions
+        (type, amount, category, description, date)
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        transaction_type,
+        float(amount),
+        category,
+        description,
+        date
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Transaction added successfully"
+    })
+
+
+@app.route("/api/transactions", methods=["GET"])
+def get_transactions():
+
+    connection = get_db_connection()
+
+    transactions = connection.execute("""
+        SELECT *
+        FROM transactions
+        ORDER BY date DESC, id DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        dict(transaction)
+        for transaction in transactions
+    ])
+
+
+@app.route("/api/transactions/<int:transaction_id>",
+           methods=["PUT"])
+def update_transaction(transaction_id):
+
+    data = request.get_json()
+
+    connection = get_db_connection()
+
+    cursor = connection.execute("""
+        UPDATE transactions
+        SET
+            type = ?,
+            amount = ?,
+            category = ?,
+            description = ?,
+            date = ?
+        WHERE id = ?
+    """, (
+        data.get("type"),
+        float(data.get("amount")),
+        data.get("category"),
+        data.get("description", ""),
+        data.get("date"),
+        transaction_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount == 0:
+        return jsonify({
+            "success": False,
+            "message": "Transaction not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "message": "Transaction updated"
+    })
+
+
+@app.route("/api/transactions/<int:transaction_id>",
+           methods=["DELETE"])
+def delete_transaction(transaction_id):
+
+    connection = get_db_connection()
+
+    cursor = connection.execute("""
+        DELETE FROM transactions
+        WHERE id = ?
+    """, (transaction_id,))
+
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount == 0:
+        return jsonify({
+            "success": False,
+            "message": "Transaction not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "message": "Transaction deleted"
+    })
+
+
+@app.route("/api/categorize", methods=["POST"])
+def categorize():
+
+    data = request.get_json()
+
+    description = data.get("description", "")
+
+    category = categorize_transaction(description)
+
+    return jsonify({
+        "description": description,
+        "category": category
+    })
+
 
 
 
