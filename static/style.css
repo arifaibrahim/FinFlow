@@ -1,0 +1,1628 @@
+/* =========================================================
+   FINFLOW — MONEY IN MOTION
+   Main stylesheet
+   Designed for:
+   index.html + script.js + Flask app.py
+   ========================================================= */
+
+
+/* =========================================================
+   1. GLOBAL RESET
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    background: #f3faf8;
+    color: #102326;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+}
+
+::selection {
+    background: #b8f4e2;
+    color: #073c3a;
+}
+
+
+/* =========================================================
+   2. SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 245px;
+    height: 100vh;
+
+    background: linear-gradient(
+        180deg,
+        #063f3e 0%,
+        #075451 55%,
+        #063d3c 100%
+    );
+
+    color: white;
+    padding: 28px 16px;
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 1000;
+
+    box-shadow: 8px 0 30px rgba(0, 60, 58, 0.08);
+}
+
+
+/* =========================================================
+   3. BRAND
+   ========================================================= */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 5px 10px 32px;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #18d5a7,
+        #0b8e7d
+    );
+
+    color: white;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 20px rgba(20, 216, 169, 0.18);
+}
+
+.brand-text h1 {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 750;
+    letter-spacing: -0.8px;
+}
+
+.brand-text p {
+    margin-top: 5px;
+
+    color: rgba(255, 255, 255, 0.65);
+
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   4. SIDEBAR NAVIGATION
+   ========================================================= */
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    width: 100%;
+
+    border: none;
+    border-radius: 13px;
+
+    background: transparent;
+    color: rgba(255, 255, 255, 0.76);
+
+    padding: 14px 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    text-align: left;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: white;
+    transform: translateX(2px);
+}
+
+.nav-item.active {
+    background: linear-gradient(
+        90deg,
+        rgba(44, 220, 178, 0.30),
+        rgba(38, 193, 165, 0.16)
+    );
+
+    color: white;
+
+    box-shadow:
+        inset 3px 0 0 #52e2bd;
+}
+
+.nav-icon {
+    width: 23px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   5. MAIN CONTENT
+   ========================================================= */
+
+.main-content {
+    margin-left: 245px;
+
+    min-height: 100vh;
+
+    padding: 34px 36px 60px;
+
+    background:
+        radial-gradient(
+            circle at 80% 0%,
+            rgba(90, 224, 194, 0.10),
+            transparent 30%
+        ),
+        #f3faf8;
+}
+
+
+/* =========================================================
+   6. PAGE VIEWS
+   ========================================================= */
+
+.page-view {
+    display: none;
+
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+}
+
+.page-view.active-view {
+    display: block;
+
+    animation: pageFade 0.25s ease;
+}
+
+@keyframes pageFade {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   7. PAGE HEADER
+   ========================================================= */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    gap: 25px;
+
+    margin-bottom: 24px;
+}
+
+.eyebrow,
+.card-label {
+    color: #159a80;
+
+    font-size: 10px;
+    font-weight: 750;
+
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.page-header h2 {
+    margin-top: 6px;
+
+    color: #0b1720;
+
+    font-size: clamp(27px, 3vw, 36px);
+    line-height: 1.15;
+
+    font-weight: 750;
+    letter-spacing: -1.2px;
+}
+
+.page-subtitle {
+    margin-top: 7px;
+
+    color: #6d7d80;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   8. HEADER BUTTONS
+   ========================================================= */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button {
+    border-radius: 12px;
+
+    padding: 12px 18px;
+
+    border: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.primary-button {
+    background: linear-gradient(
+        135deg,
+        #1bc9a1,
+        #079477
+    );
+
+    color: white;
+
+    box-shadow:
+        0 7px 18px rgba(11, 155, 125, 0.18);
+}
+
+.primary-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 24px rgba(11, 155, 125, 0.25);
+}
+
+.secondary-button {
+    background: white;
+
+    color: #087c69;
+
+    border: 1px solid #cfe6e1;
+}
+
+.secondary-button:hover {
+    background: #effaf7;
+
+    border-color: #9dd9cc;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   9. HERO CARD
+   ========================================================= */
+
+.hero-card {
+    min-height: 175px;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin-bottom: 20px;
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(3, 58, 58, 0.96),
+            rgba(5, 102, 93, 0.76),
+            rgba(14, 130, 112, 0.30)
+        ),
+        radial-gradient(
+            circle at 80% 20%,
+            rgba(88, 224, 188, 0.35),
+            transparent 40%
+        );
+
+    box-shadow:
+        0 10px 30px rgba(7, 72, 68, 0.10);
+}
+
+.hero-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    right: -60px;
+    top: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(112, 239, 205, 0.12);
+
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+
+    padding: 28px 36px;
+}
+
+.hero-label {
+    color: #9beed9;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.8px;
+}
+
+.hero-content h3 {
+    margin-top: 9px;
+
+    color: white;
+
+    font-size: clamp(25px, 3vw, 34px);
+    font-weight: 750;
+
+    letter-spacing: -1px;
+}
+
+.hero-content > p:not(.hero-label) {
+    margin-top: 6px;
+
+    color: rgba(255, 255, 255, 0.76);
+
+    font-size: 14px;
+}
+
+.hero-content .primary-button {
+    margin-top: 20px;
+
+    background: #a7f1dd;
+    color: #07554d;
+
+    box-shadow: none;
+}
+
+.hero-content .primary-button:hover {
+    background: #c3f7e9;
+}
+
+
+/* =========================================================
+   10. SUMMARY CARDS
+   ========================================================= */
+
+.summary-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+}
+
+.stat-card {
+    min-height: 125px;
+
+    padding: 20px;
+
+    background: white;
+
+    border: 1px solid #e0efeb;
+
+    border-radius: 17px;
+
+    box-shadow:
+        0 5px 20px rgba(13, 79, 73, 0.045);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 28px rgba(13, 79, 73, 0.08);
+}
+
+.stat-card::before {
+    content: "";
+
+    display: block;
+
+    width: 35px;
+    height: 4px;
+
+    margin-bottom: 17px;
+
+    border-radius: 10px;
+
+    background: #22b997;
+}
+
+.stat-label {
+    color: #78898b;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stat-card h3 {
+    margin-top: 7px;
+
+    color: #0c1e22;
+
+    font-size: 24px;
+    font-weight: 750;
+
+    letter-spacing: -0.5px;
+}
+
+
+/* =========================================================
+   11. DASHBOARD GRID
+   ========================================================= */
+
+.dashboard-grid {
+    display: grid;
+
+    gap: 17px;
+
+    margin-bottom: 18px;
+}
+
+.dashboard-grid.two-column {
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+}
+
+
+/* =========================================================
+   12. COMMON DASHBOARD CARD
+   ========================================================= */
+
+.dashboard-card {
+    background: rgba(255, 255, 255, 0.97);
+
+    border: 1px solid #dfefeb;
+
+    border-radius: 17px;
+
+    padding: 21px;
+
+    box-shadow:
+        0 5px 20px rgba(13, 79, 73, 0.045);
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.card-header h3,
+.dashboard-card > h3 {
+    margin-top: 5px;
+
+    color: #132529;
+
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.card-header > span {
+    color: #0b9d80;
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   13. CHART PLACEHOLDER
+   ========================================================= */
+
+.chart-placeholder {
+    height: 235px;
+
+    position: relative;
+
+    display: flex;
+    align-items: flex-end;
+
+    padding: 15px 10px 10px;
+
+    border-radius: 12px;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 45px,
+            #eaf3f1 46px
+        );
+}
+
+.chart-placeholder::before {
+    content: "";
+
+    position: absolute;
+
+    left: 28px;
+    right: 15px;
+    bottom: 28px;
+
+    height: 130px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0 5%,
+            #0c9b7c 5% 10%,
+            transparent 10% 17%,
+            #19b895 17% 22%,
+            transparent 22% 29%,
+            #0c9b7c 29% 34%,
+            transparent 34% 41%,
+            #19b895 41% 46%,
+            transparent 46% 53%,
+            #0c9b7c 53% 58%,
+            transparent 58% 65%,
+            #19b895 65% 70%,
+            transparent 70% 77%,
+            #0c9b7c 77% 82%,
+            transparent 82% 89%,
+            #19b895 89% 94%,
+            transparent 94%
+        );
+
+    opacity: 0.18;
+
+    border-radius: 8px 8px 0 0;
+}
+
+.chart-placeholder-text {
+    width: 100%;
+
+    text-align: center;
+
+    color: #91a2a2;
+
+    font-size: 12px;
+
+    position: relative;
+    z-index: 2;
+}
+
+
+/* =========================================================
+   14. DONUT PLACEHOLDER
+   ========================================================= */
+
+.donut-placeholder {
+    height: 235px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+}
+
+.donut-circle {
+    width: 165px;
+    height: 165px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        conic-gradient(
+            #16b998 0deg 105deg,
+            #69d8c1 105deg 170deg,
+            #0c806e 170deg 225deg,
+            #9be6d5 225deg 285deg,
+            #087463 285deg 360deg
+        );
+
+    position: relative;
+}
+
+.donut-circle::after {
+    content: "";
+
+    position: absolute;
+
+    width: 105px;
+    height: 105px;
+
+    border-radius: 50%;
+
+    background: white;
+}
+
+.donut-circle span {
+    position: relative;
+    z-index: 2;
+
+    color: #12282a;
+
+    font-size: 16px;
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   15. PROGRESS BARS
+   ========================================================= */
+
+.progress-item {
+    margin-bottom: 20px;
+}
+
+.progress-item:last-child {
+    margin-bottom: 0;
+}
+
+.progress-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+
+    color: #465b5d;
+
+    font-size: 12px;
+}
+
+.progress-info strong {
+    color: #263b3d;
+
+    font-size: 12px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e5f0ed;
+}
+
+.progress-bar.large {
+    height: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+
+    min-width: 0;
+
+    border-radius: inherit;
+
+    background: linear-gradient(
+        90deg,
+        #1ac29c,
+        #079477
+    );
+
+    transition: width 0.4s ease;
+}
+
+
+/* =========================================================
+   16. INSIGHT ITEMS
+   ========================================================= */
+
+.insight-item {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #edf3f1;
+}
+
+.insight-item:last-child {
+    border-bottom: none;
+}
+
+.insight-item > span {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #e9f9f5;
+
+    font-size: 15px;
+}
+
+.insight-item strong {
+    display: block;
+
+    color: #25383b;
+
+    font-size: 13px;
+}
+
+.insight-item p {
+    margin-top: 4px;
+
+    color: #78898b;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   17. TRANSACTIONS PAGE
+   ========================================================= */
+
+.transaction-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 17px;
+}
+
+.search-box {
+    width: min(420px, 100%);
+
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 0 15px;
+
+    background: white;
+
+    border: 1px solid #dcece8;
+
+    border-radius: 12px;
+}
+
+.search-box span {
+    color: #8da09f;
+
+    font-size: 15px;
+}
+
+.search-box input {
+    width: 100%;
+
+    border: none;
+    background: transparent;
+
+    color: #24383a;
+
+    font-size: 13px;
+}
+
+.search-box input::placeholder {
+    color: #9aa9a9;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 5px;
+
+    padding: 4px;
+
+    background: #e6f1ef;
+
+    border-radius: 11px;
+}
+
+.filter-tab {
+    border: none;
+
+    background: transparent;
+
+    color: #667878;
+
+    padding: 8px 14px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.filter-tab:hover {
+    color: #087d69;
+}
+
+.filter-tab.active {
+    background: white;
+
+    color: #087d69;
+
+    box-shadow:
+        0 2px 7px rgba(15, 80, 72, 0.08);
+}
+
+
+/* =========================================================
+   18. TRANSACTION TABLE
+   ========================================================= */
+
+.transaction-table-card {
+    overflow-x: auto;
+
+    padding: 0;
+}
+
+.transaction-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 680px;
+}
+
+.transaction-table th {
+    padding: 16px 20px;
+
+    background: #f7fbfa;
+
+    color: #819090;
+
+    font-size: 10px;
+    font-weight: 750;
+
+    letter-spacing: 1px;
+
+    text-align: left;
+
+    text-transform: uppercase;
+
+    border-bottom: 1px solid #e7f0ee;
+}
+
+.transaction-table td {
+    padding: 17px 20px;
+
+    color: #34484a;
+
+    font-size: 13px;
+
+    border-bottom: 1px solid #edf3f1;
+}
+
+.transaction-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.transaction-table tbody tr:hover {
+    background: #f6fbfa;
+}
+
+.transaction-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.transaction-table td:last-child {
+    font-weight: 750;
+    color: #087e69;
+}
+
+
+/* =========================================================
+   19. CATEGORY CHIPS
+   ========================================================= */
+
+.category-chips {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-top: 18px;
+}
+
+.category-chips span {
+    padding: 9px 12px;
+
+    background: #f0f8f6;
+
+    border: 1px solid #dcece8;
+
+    border-radius: 20px;
+
+    color: #456264;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.category-chips span:hover {
+    background: #e1f5ef;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   20. BUDGET PAGE
+   ========================================================= */
+
+.budget-item {
+    padding: 17px 0;
+
+    border-bottom: 1px solid #edf3f1;
+}
+
+.budget-item:last-child {
+    border-bottom: none;
+}
+
+.budget-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 10px;
+}
+
+.budget-item-header span {
+    color: #33494a;
+
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.budget-item-header p {
+    margin-top: 5px;
+
+    color: #849292;
+
+    font-size: 12px;
+}
+
+.budget-item-header > strong {
+    color: #118c73;
+
+    font-size: 14px;
+}
+
+.section-heading {
+    margin: 30px 0 16px;
+}
+
+.section-heading h3 {
+    margin-top: 5px;
+
+    color: #162b2e;
+
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.goal-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 17px;
+}
+
+.goal-card {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    min-height: 250px;
+}
+
+.goal-card-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #e2f8f1;
+
+    font-size: 21px;
+
+    margin-bottom: 15px;
+}
+
+.goal-card h3 {
+    color: #173033;
+
+    font-size: 17px;
+}
+
+.goal-card p {
+    margin-top: 7px;
+
+    color: #829191;
+
+    font-size: 13px;
+}
+
+.goal-card .primary-button {
+    width: fit-content;
+
+    margin-top: 18px;
+}
+
+.goal-amount {
+    display: flex;
+    align-items: baseline;
+
+    gap: 5px;
+
+    margin: 20px 0 12px;
+}
+
+.goal-amount strong {
+    color: #087e69;
+
+    font-size: 27px;
+}
+
+.goal-amount span {
+    color: #879494;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   21. SMART COACH
+   ========================================================= */
+
+.health-card {
+    min-height: 175px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #eafaf6
+        );
+}
+
+.health-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 170px;
+    height: 170px;
+
+    right: -50px;
+    top: -50px;
+
+    border-radius: 50%;
+
+    background: rgba(34, 194, 157, 0.10);
+}
+
+.health-card h3 {
+    margin-top: 8px;
+
+    color: #087e69;
+
+    font-size: 46px;
+    line-height: 1;
+
+    font-weight: 800;
+
+    position: relative;
+    z-index: 1;
+}
+
+.health-card > p:last-child {
+    margin-top: 8px;
+
+    color: #6e8181;
+
+    font-size: 13px;
+
+    position: relative;
+    z-index: 1;
+}
+
+.insight-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 17px;
+
+    margin-top: 18px;
+}
+
+.coach-card {
+    min-height: 205px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.coach-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 12px 30px rgba(10, 80, 73, 0.08);
+}
+
+.coach-card-icon {
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 15px;
+
+    border-radius: 12px;
+
+    background: #e7f8f3;
+
+    font-size: 18px;
+}
+
+.coach-card h3 {
+    margin-top: 6px;
+
+    color: #173033;
+
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.coach-card > p:last-of-type {
+    margin-top: 8px;
+
+    color: #7b8b8b;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.coach-card .primary-button {
+    margin-top: 16px;
+}
+
+
+/* =========================================================
+   22. FORM-LIKE ELEMENTS
+   ========================================================= */
+
+input,
+select,
+textarea {
+    border: 1px solid #dcebe8;
+
+    border-radius: 10px;
+
+    background: white;
+
+    color: #24383a;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #26b999;
+
+    box-shadow:
+        0 0 0 3px rgba(38, 185, 153, 0.10);
+}
+
+
+/* =========================================================
+   23. SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #edf5f3;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a9c9c2;
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #75afa3;
+}
+
+
+/* =========================================================
+   24. RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .main-content {
+        margin-left: 210px;
+
+        padding: 28px 24px 50px;
+    }
+
+    .summary-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .insight-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   25. RESPONSIVE — SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .sidebar {
+        position: relative;
+
+        width: 100%;
+        height: auto;
+
+        padding: 15px 16px;
+    }
+
+    .brand {
+        padding: 5px 5px 15px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+
+        overflow-x: auto;
+
+        padding-bottom: 3px;
+    }
+
+    .nav-item {
+        width: auto;
+
+        flex: 0 0 auto;
+
+        padding: 10px 13px;
+    }
+
+    .main-content {
+        margin-left: 0;
+
+        padding: 25px 18px 45px;
+    }
+
+    .dashboard-grid.two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .goal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions button {
+        flex: 1;
+    }
+
+    .transaction-controls {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .filter-tabs {
+        width: fit-content;
+    }
+}
+
+
+/* =========================================================
+   26. RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 560px) {
+
+    body {
+        background: #f3faf8;
+    }
+
+    .sidebar {
+        padding: 12px 10px;
+
+        box-shadow:
+            0 4px 20px rgba(5, 70, 64, 0.10);
+    }
+
+    .brand {
+        justify-content: center;
+
+        padding-bottom: 12px;
+    }
+
+    .brand-logo {
+        width: 43px;
+        height: 43px;
+
+        border-radius: 12px;
+    }
+
+    .brand-text h1 {
+        font-size: 20px;
+    }
+
+    .sidebar-nav {
+        gap: 5px;
+    }
+
+    .nav-item {
+        justify-content: center;
+
+        padding: 9px 11px;
+
+        font-size: 11px;
+    }
+
+    .nav-icon {
+        font-size: 15px;
+    }
+
+    .main-content {
+        padding: 20px 12px 35px;
+    }
+
+    .page-header h2 {
+        font-size: 27px;
+    }
+
+    .page-subtitle {
+        font-size: 12px;
+    }
+
+    .hero-card {
+        min-height: 180px;
+
+        border-radius: 16px;
+    }
+
+    .hero-content {
+        padding: 24px 22px;
+    }
+
+    .hero-content h3 {
+        font-size: 24px;
+    }
+
+    .summary-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+    .stat-card {
+        min-height: 110px;
+
+        padding: 15px;
+    }
+
+    .stat-card h3 {
+        font-size: 19px;
+    }
+
+    .dashboard-card {
+        padding: 16px;
+
+        border-radius: 15px;
+    }
+
+    .chart-placeholder,
+    .donut-placeholder {
+        height: 200px;
+    }
+
+    .insight-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-actions {
+        flex-direction: column;
+    }
+
+    .header-actions button {
+        width: 100%;
+    }
+
+    .filter-tabs {
+        width: 100%;
+    }
+
+    .filter-tab {
+        flex: 1;
+    }
+
+    .goal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-chips span {
+        font-size: 11px;
+    }
+}
+
+
+/* =========================================================
+   27. REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
+    }
+}
