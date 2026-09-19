@@ -428,6 +428,211 @@ def categorize():
         "category": category
     })
 
+@app.route("/api/summary")
+def get_summary():
+
+    return jsonify(
+        calculate_financial_summary()
+    )
+
+
+@app.route("/api/dashboard")
+def dashboard():
+
+    summary = calculate_financial_summary()
+
+    connection = get_db_connection()
+
+    recent_transactions = connection.execute("""
+        SELECT *
+        FROM transactions
+        ORDER BY date DESC, id DESC
+        LIMIT 5
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify({
+        "summary": summary,
+        "recent_transactions": [
+            dict(transaction)
+            for transaction in recent_transactions
+        ],
+        "insights": generate_insights(),
+        "health": calculate_financial_health()
+    })
+
+@app.route("/api/spending-by-category")
+def spending_by_category():
+
+    connection = get_db_connection()
+
+    results = connection.execute("""
+        SELECT category, SUM(amount) AS total
+        FROM transactions
+        WHERE type = 'expense'
+        GROUP BY category
+        ORDER BY total DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        {
+            "category": row["category"],
+            "total": round(row["total"], 2)
+        }
+        for row in results
+    ])
+
+
+@app.route("/api/monthly-summary")
+def monthly_summary():
+
+    connection = get_db_connection()
+
+    results = connection.execute("""
+        SELECT
+            substr(date, 1, 7) AS month,
+
+            SUM(
+                CASE
+                    WHEN type = 'income'
+                    THEN amount
+                    ELSE 0
+                END
+            ) AS income,
+
+            SUM(
+                CASE
+                    WHEN type = 'expense'
+                    THEN amount
+                    ELSE 0
+                END
+            ) AS expenses
+
+        FROM transactions
+
+        GROUP BY substr(date, 1, 7)
+
+        ORDER BY month
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        {
+            "month": row["month"],
+            "income": round(row["income"], 2),
+            "expenses": round(row["expenses"], 2)
+        }
+        for row in results
+    ])
+
+
+@app.route("/api/budgets", methods=["POST"])
+def add_budget():
+
+    data = request.get_json()
+
+    category = data.get("category")
+    amount = data.get("amount")
+
+    if not category or amount is None:
+        return jsonify({
+            "success": False,
+            "message": "Category and amount are required"
+        }), 400
+
+    connection = get_db_connection()
+
+    connection.execute("""
+        INSERT INTO budgets
+        (category, amount)
+        VALUES (?, ?)
+
+        ON CONFLICT(category)
+        DO UPDATE SET amount = excluded.amount
+    """, (
+        category,
+        float(amount)
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Budget saved"
+    })
+
+
+@app.route("/api/budgets")
+def get_budgets():
+
+    connection = get_db_connection()
+
+    budgets = connection.execute("""
+        SELECT *
+        FROM budgets
+        ORDER BY category
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        dict(budget)
+        for budget in budgets
+    ])
+
+
+@app.route("/api/budget-progress")
+def budget_progress():
+
+    connection = get_db_connection()
+
+    budgets = connection.execute("""
+        SELECT category, amount
+        FROM budgets
+    """).fetchall()
+
+    result = []
+
+    for budget in budgets:
+
+        spending = connection.execute("""
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 'expense'
+            AND category = ?
+        """, (
+            budget["category"],
+        )).fetchone()[0]
+
+        budget_amount = budget["amount"]
+
+        if budget_amount > 0:
+            percentage = (
+                spending / budget_amount
+            ) * 100
+        else:
+            percentage = 0
+
+        result.append({
+            "category": budget["category"],
+            "budget": round(budget_amount, 2),
+            "spent": round(spending, 2),
+            "percentage": round(percentage, 2),
+            "remaining": round(
+                budget_amount - spending,
+                2
+            )
+        })
+
+    connection.close()
+
+    return jsonify(result)
+
 
 
 
