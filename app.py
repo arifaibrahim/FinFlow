@@ -633,7 +633,143 @@ def budget_progress():
 
     return jsonify(result)
 
+@app.route("/api/goals", methods=["POST"])
+def add_goal():
 
+    data = request.get_json()
+
+    name = data.get("name")
+    target = data.get("target")
+    current = data.get("current", 0)
+    deadline = data.get("deadline")
+
+    if not name or target is None:
+        return jsonify({
+            "success": False,
+            "message":
+                "Goal name and target are required"
+        }), 400
+
+    connection = get_db_connection()
+
+    connection.execute("""
+        INSERT INTO goals
+        (name, target, current, deadline)
+        VALUES (?, ?, ?, ?)
+    """, (
+        name,
+        float(target),
+        float(current),
+        deadline
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Goal created"
+    })
+
+
+@app.route("/api/goals")
+def get_goals():
+
+    connection = get_db_connection()
+
+    goals = connection.execute("""
+        SELECT *
+        FROM goals
+        ORDER BY id DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        dict(goal)
+        for goal in goals
+    ])
+
+
+@app.route("/api/goal-progress")
+def goal_progress():
+
+    connection = get_db_connection()
+
+    goals = connection.execute("""
+        SELECT *
+        FROM goals
+    """).fetchall()
+
+    result = []
+
+    for goal in goals:
+
+        target = goal["target"]
+        current = goal["current"]
+
+        if target > 0:
+            percentage = (
+                current / target
+            ) * 100
+        else:
+            percentage = 0
+
+        remaining = max(
+            target - current,
+            0
+        )
+
+        result.append({
+            "id": goal["id"],
+            "name": goal["name"],
+            "target": round(target, 2),
+            "current": round(current, 2),
+            "remaining": round(remaining, 2),
+            "percentage": round(percentage, 2),
+            "deadline": goal["deadline"]
+        })
+
+    connection.close()
+
+    return jsonify(result)
+
+@app.route("/api/recurring")
+def detect_recurring():
+
+    connection = get_db_connection()
+
+    transactions = connection.execute("""
+        SELECT
+            description,
+            ROUND(amount, 2) AS amount,
+            COUNT(*) AS occurrences
+
+        FROM transactions
+
+        WHERE type = 'expense'
+        AND description IS NOT NULL
+        AND description != ''
+
+        GROUP BY
+            LOWER(description),
+            ROUND(amount, 2)
+
+        HAVING COUNT(*) >= 3
+
+        ORDER BY occurrences DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        {
+            "description": row["description"],
+            "amount": row["amount"],
+            "occurrences": row["occurrences"]
+        }
+        for row in transactions
+    ])
 
 
 
