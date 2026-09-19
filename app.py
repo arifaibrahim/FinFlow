@@ -1,32 +1,25 @@
 from flask import Flask, render_template, jsonify, request
 import sqlite3
+import pandas as pd
+import os
 
 app = Flask(__name__)
 
-
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
-@app.route("/api/test")
-def api_test():
-    return jsonify({
-        "message": "FinFlow backend connected",
-        "status": "success"
-    })
-
-
-
 DATABASE = "finance.db"
+UPLOAD_FOLDER = "uploads"
 
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 def get_db_connection():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
     return connection
 
+
 def init_database():
+
     connection = get_db_connection()
 
     connection.execute("""
@@ -60,6 +53,3 @@ def init_database():
 
     connection.commit()
     connection.close()
-
-if __name__ == "__main__":
-    app.run(debug=True)
