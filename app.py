@@ -771,6 +771,135 @@ def detect_recurring():
         for row in transactions
     ])
 
+@app.route("/api/financial-health")
+def financial_health():
+
+    return jsonify(
+        calculate_financial_health()
+    )
+
+@app.route("/api/upload-statement",
+           methods=["POST"])
+def upload_statement():
+
+    if "file" not in request.files:
+
+        return jsonify({
+            "success": False,
+            "message": "No file uploaded"
+        }), 400
+
+    file = request.files["file"]
+
+    if file.filename == "":
+
+        return jsonify({
+            "success": False,
+            "message": "No file selected"
+        }), 400
+
+    if not file.filename.lower().endswith(".csv"):
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Only CSV files are supported"
+        }), 400
+
+    filepath = os.path.join(
+        app.config["UPLOAD_FOLDER"],
+        file.filename
+    )
+
+    file.save(filepath)
+
+    try:
+
+        dataframe = pd.read_csv(filepath)
+
+    except Exception:
+
+        return jsonify({
+            "success": False,
+            "message": "Could not read CSV file"
+        }), 400
+
+    required_columns = {
+        "Date",
+        "Description",
+        "Amount",
+        "Type"
+    }
+
+    if not required_columns.issubset(
+        dataframe.columns
+    ):
+
+        return jsonify({
+            "success": False,
+            "message":
+                "CSV must contain Date, "
+                "Description, Amount and Type columns"
+        }), 400
+
+    connection = get_db_connection()
+
+    imported = 0
+    categorized = 0
+    needs_review = 0
+
+    for _, row in dataframe.iterrows():
+
+        description = str(
+            row["Description"]
+        )
+
+        transaction_type = str(
+            row["Type"]
+        ).lower()
+
+        amount = float(
+            row["Amount"]
+        )
+
+        date = str(
+            row["Date"]
+        )
+
+        category = categorize_transaction(
+            description
+        )
+
+        if category == "Other":
+            needs_review += 1
+        else:
+            categorized += 1
+
+        connection.execute("""
+            INSERT INTO transactions
+            (type, amount, category, description, date)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            transaction_type,
+            amount,
+            category,
+            description,
+            date
+        ))
+
+        imported += 1
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "success": True,
+        "imported": imported,
+        "categorized": categorized,
+        "needs_review": needs_review
+    })
+
+
 
 
 if __name__ == "__main__":
