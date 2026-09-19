@@ -53,3 +53,119 @@ def init_database():
 
     connection.commit()
     connection.close()
+
+CATEGORY_KEYWORDS = {
+
+    "Food": [
+        "zomato",
+        "swiggy",
+        "restaurant",
+        "pizza",
+        "food"
+    ],
+
+    "Transport": [
+        "uber",
+        "ola",
+        "petrol",
+        "bus",
+        "metro"
+    ],
+
+    "Shopping": [
+        "amazon",
+        "flipkart",
+        "myntra"
+    ],
+
+    "Bills": [
+        "jio",
+        "airtel",
+        "electricity",
+        "recharge"
+    ],
+
+    "Entertainment": [
+        "netflix",
+        "spotify",
+        "movie"
+    ],
+
+    "Health": [
+        "hospital",
+        "pharmacy",
+        "medical",
+        "medicine"
+    ],
+
+    "Education": [
+        "college",
+        "course",
+        "book",
+        "education"
+    ]
+}
+
+
+def categorize_transaction(description):
+
+    description = description.lower()
+
+    for category, keywords in CATEGORY_KEYWORDS.items():
+
+        for keyword in keywords:
+
+            if keyword in description:
+                return category
+
+    return "Other"
+
+
+def calculate_financial_summary():
+
+    connection = get_db_connection()
+
+    income_result = connection.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM transactions
+        WHERE type = 'income'
+    """).fetchone()
+
+    expense_result = connection.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM transactions
+        WHERE type = 'expense'
+    """).fetchone()
+
+    connection.close()
+
+    total_income = income_result[0]
+    total_expenses = expense_result[0]
+
+    balance = total_income - total_expenses
+
+    if total_income > 0:
+        savings_rate = (
+            balance / total_income
+        ) * 100
+    else:
+        savings_rate = 0
+
+    return {
+        "income": round(total_income, 2),
+        "expenses": round(total_expenses, 2),
+        "balance": round(balance, 2),
+        "savings_rate": round(savings_rate, 2)
+    }
+
+
+
+
+
+
+
+if __name__ == "__main__":
+
+    init_database()
+
+    app.run(debug=True)
