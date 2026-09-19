@@ -2,6 +2,12 @@ from flask import Flask, render_template, jsonify, request
 import sqlite3
 import pandas as pd
 import os
+from datetime import datetime, date
+
+# =========================================================
+# FINFLOW — MONEY IN MOTION
+# Backend
+# =========================================================
 
 app = Flask(__name__)
 
@@ -12,6 +18,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+
+# =========================================================
+# DATABASE
+# =========================================================
+
 def get_db_connection():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
@@ -21,6 +32,10 @@ def get_db_connection():
 def init_database():
 
     connection = get_db_connection()
+
+    # -----------------------------
+    # Transactions
+    # -----------------------------
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
@@ -33,6 +48,10 @@ def init_database():
         )
     """)
 
+    # -----------------------------
+    # Budgets
+    # -----------------------------
+
     connection.execute("""
         CREATE TABLE IF NOT EXISTS budgets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +59,10 @@ def init_database():
             amount REAL NOT NULL
         )
     """)
+
+    # -----------------------------
+    # Goals
+    # -----------------------------
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS goals (
@@ -54,62 +77,170 @@ def init_database():
     connection.commit()
     connection.close()
 
+
+# =========================================================
+# CONSTANTS
+# =========================================================
+
+CATEGORIES = [
+    "Food",
+    "Transport",
+    "Shopping",
+    "Education",
+    "Bills",
+    "Entertainment",
+    "Health",
+    "Salary",
+    "Other"
+]
+
+
 CATEGORY_KEYWORDS = {
 
     "Food": [
         "zomato",
         "swiggy",
         "restaurant",
+        "food",
         "pizza",
-        "food"
+        "cafe",
+        "coffee",
+        "hotel",
+        "bakery",
+        "grocery",
+        "groceries"
     ],
 
     "Transport": [
         "uber",
         "ola",
         "petrol",
+        "fuel",
         "bus",
-        "metro"
+        "metro",
+        "taxi",
+        "rapido",
+        "transport",
+        "parking"
     ],
 
     "Shopping": [
         "amazon",
         "flipkart",
-        "myntra"
+        "myntra",
+        "shopping",
+        "mall",
+        "store",
+        "retail"
     ],
 
     "Bills": [
         "jio",
         "airtel",
+        "vi",
+        "vodafone",
         "electricity",
-        "recharge"
+        "recharge",
+        "internet",
+        "wifi",
+        "bill",
+        "utility",
+        "water"
     ],
 
     "Entertainment": [
         "netflix",
         "spotify",
-        "movie"
+        "movie",
+        "cinema",
+        "youtube",
+        "prime",
+        "entertainment",
+        "game"
     ],
 
     "Health": [
         "hospital",
         "pharmacy",
         "medical",
-        "medicine"
+        "medicine",
+        "doctor",
+        "clinic",
+        "health"
     ],
 
     "Education": [
         "college",
         "course",
         "book",
-        "education"
+        "education",
+        "school",
+        "university",
+        "tuition",
+        "exam"
+    ],
+
+    "Salary": [
+        "salary",
+        "payroll",
+        "stipend",
+        "wages",
+        "income"
     ]
 }
 
 
+# =========================================================
+# HELPER FUNCTIONS
+# =========================================================
+
+def normalize_transaction_type(transaction_type):
+
+    if transaction_type is None:
+        return None
+
+    value = str(transaction_type).strip().lower()
+
+    if value in [
+        "income",
+        "credit",
+        "credited",
+        "deposit",
+        "salary"
+    ]:
+        return "income"
+
+    if value in [
+        "expense",
+        "debit",
+        "debited",
+        "withdrawal",
+        "payment"
+    ]:
+        return "expense"
+
+    return None
+
+
+def normalize_date(value):
+
+    if value is None:
+        return None
+
+    try:
+        parsed = pd.to_datetime(value)
+        return parsed.strftime("%Y-%m-%d")
+
+    except Exception:
+        return None
+
+
 def categorize_transaction(description):
 
-    description = description.lower()
+    if not description:
+        return "Other"
+
+    description = str(description).lower()
 
     for category, keywords in CATEGORY_KEYWORDS.items():
 
@@ -119,6 +250,153 @@ def categorize_transaction(description):
                 return category
 
     return "Other"
+
+
+def get_requested_year():
+
+    value = request.args.get("year")
+
+    if value:
+
+        try:
+            return int(value)
+        except ValueError:
+            pass
+
+    return datetime.now().year
+
+
+def get_requested_month():
+
+    value = request.args.get("month")
+
+    if value and value != "all":
+
+        try:
+            month = int(value)
+
+            if 1 <= month <= 12:
+                return month
+
+        except ValueError:
+            pass
+
+    return None
+
+
+def month_name(month_number):
+
+    names = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ]
+
+    return names[month_number - 1]
+
+
+def calculate_percentage_change(current, previous):
+
+    current = float(current or 0)
+    previous = float(previous or 0)
+
+    if previous == 0:
+
+        if current == 0:
+            return 0
+
+        return None
+
+    return round(
+        ((current - previous) / abs(previous)) * 100,
+        2
+    )
+
+
+def get_month_summary(year, month):
+
+    connection = get_db_connection()
+
+    start_date = f"{year}-{month:02d}-01"
+
+    if month == 12:
+        next_year = year + 1
+        next_month = 1
+    else:
+        next_year = year
+        next_month = month + 1
+
+    end_date = f"{next_year}-{next_month:02d}-01"
+
+    result = connection.execute("""
+        SELECT
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type = 'income'
+                        THEN amount
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS income,
+
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type = 'expense'
+                        THEN amount
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS expenses
+
+        FROM transactions
+
+        WHERE date >= ?
+        AND date < ?
+    """, (
+        start_date,
+        end_date
+    )).fetchone()
+
+    connection.close()
+
+    income = float(result["income"] or 0)
+    expenses = float(result["expenses"] or 0)
+
+    balance = income - expenses
+
+    savings_rate = (
+        (balance / income) * 100
+        if income > 0
+        else 0
+    )
+
+    return {
+        "income": round(income, 2),
+        "expenses": round(expenses, 2),
+        "balance": round(balance, 2),
+        "savings_rate": round(savings_rate, 2)
+    }
+
+
+def get_previous_month(year, month):
+
+    if month == 1:
+        return year - 1, 12
+
+    return year, month - 1
 
 
 def calculate_financial_summary():
@@ -139,25 +417,91 @@ def calculate_financial_summary():
 
     connection.close()
 
-    total_income = income_result[0]
-    total_expenses = expense_result[0]
+    total_income = float(income_result[0] or 0)
+    total_expenses = float(expense_result[0] or 0)
 
     balance = total_income - total_expenses
 
     if total_income > 0:
+
         savings_rate = (
             balance / total_income
         ) * 100
+
     else:
         savings_rate = 0
 
+    # Current month
+    now = datetime.now()
+
+    current_year = now.year
+    current_month = now.month
+
+    current = get_month_summary(
+        current_year,
+        current_month
+    )
+
+    previous_year, previous_month = get_previous_month(
+        current_year,
+        current_month
+    )
+
+    previous = get_month_summary(
+        previous_year,
+        previous_month
+    )
+
+    balance_change = calculate_percentage_change(
+        current["balance"],
+        previous["balance"]
+    )
+
+    income_change = calculate_percentage_change(
+        current["income"],
+        previous["income"]
+    )
+
+    expense_change = calculate_percentage_change(
+        current["expenses"],
+        previous["expenses"]
+    )
+
+    savings_change = calculate_percentage_change(
+        current["savings_rate"],
+        previous["savings_rate"]
+    )
+
     return {
+
         "income": round(total_income, 2),
+
         "expenses": round(total_expenses, 2),
+
         "balance": round(balance, 2),
-        "savings_rate": round(savings_rate, 2)
+
+        "savings_rate": round(savings_rate, 2),
+
+        "current_month": current_month,
+
+        "current_year": current_year,
+
+        "changes": {
+
+            "balance": balance_change,
+
+            "income": income_change,
+
+            "expenses": expense_change,
+
+            "savings_rate": savings_change
+        }
     }
 
+
+# =========================================================
+# SMART COACH
+# =========================================================
 
 def generate_insights():
 
@@ -165,21 +509,53 @@ def generate_insights():
 
     connection = get_db_connection()
 
+    # -----------------------------
+    # Budget insights
+    # -----------------------------
+
     budgets = connection.execute("""
         SELECT category, amount
         FROM budgets
+        ORDER BY category
     """).fetchall()
+
+    now = datetime.now()
+
+    year = now.year
+    month = now.month
+
+    start_date = f"{year}-{month:02d}-01"
+
+    if month == 12:
+        next_date = f"{year + 1}-01-01"
+    else:
+        next_date = f"{year}-{month + 1:02d}-01"
 
     for budget in budgets:
 
         spent = connection.execute("""
             SELECT COALESCE(SUM(amount), 0)
-            FROM transactions
-            WHERE type = 'expense'
-            AND category = ?
-        """, (budget["category"],)).fetchone()[0]
 
-        budget_amount = budget["amount"]
+            FROM transactions
+
+            WHERE type = 'expense'
+
+            AND category = ?
+
+            AND date >= ?
+
+            AND date < ?
+        """, (
+            budget["category"],
+            start_date,
+            next_date
+        )).fetchone()[0]
+
+        budget_amount = float(
+            budget["amount"]
+        )
+
+        spent = float(spent or 0)
 
         if budget_amount <= 0:
             continue
@@ -212,6 +588,10 @@ def generate_insights():
 
     connection.close()
 
+    # -----------------------------
+    # Savings insight
+    # -----------------------------
+
     summary = calculate_financial_summary()
 
     if summary["income"] > 0:
@@ -236,6 +616,51 @@ def generate_insights():
                     f"of your income."
             })
 
+    # -----------------------------
+    # Spending insight
+    # -----------------------------
+
+    connection = get_db_connection()
+
+    largest_category = connection.execute("""
+        SELECT
+            category,
+            SUM(amount) AS total
+
+        FROM transactions
+
+        WHERE type = 'expense'
+
+        GROUP BY category
+
+        ORDER BY total DESC
+
+        LIMIT 1
+    """).fetchone()
+
+    connection.close()
+
+    if largest_category:
+
+        insights.append({
+            "type": "info",
+            "title": "Spending Insight",
+            "message":
+                f"Your highest spending category is "
+                f"{largest_category['category']} "
+                f"at ₹{largest_category['total']:.2f}."
+        })
+
+    if not insights:
+
+        insights.append({
+            "type": "info",
+            "title": "Getting Started",
+            "message":
+                "Add transactions and budgets to receive "
+                "personalized financial insights."
+        })
+
     return insights
 
 
@@ -246,26 +671,36 @@ def calculate_financial_health():
     score = 50
 
     if summary["savings_rate"] >= 30:
+
         score += 20
 
     elif summary["savings_rate"] >= 20:
+
         score += 10
 
     elif summary["savings_rate"] < 10:
+
         score -= 10
 
     if summary["balance"] < 0:
+
         score -= 20
 
-    score = max(0, min(score, 100))
+    score = max(
+        0,
+        min(score, 100)
+    )
 
     if score >= 75:
+
         status = "Good Health"
 
     elif score >= 50:
+
         status = "Moderate Health"
 
     else:
+
         status = "Needs Attention"
 
     return {
@@ -274,9 +709,15 @@ def calculate_financial_health():
     }
 
 
+# =========================================================
+# HOME
+# =========================================================
+
 @app.route("/")
 def home():
+
     return render_template("index.html")
+
 
 @app.route("/api/test")
 def api_test():
@@ -285,38 +726,101 @@ def api_test():
         "message": "FinFlow backend connected",
         "status": "success"
     })
-@app.route("/api/transactions", methods=["POST"])
+
+
+# =========================================================
+# TRANSACTIONS
+# =========================================================
+
+@app.route(
+    "/api/transactions",
+    methods=["POST"]
+)
 def add_transaction():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
-    transaction_type = data.get("type")
+    transaction_type = normalize_transaction_type(
+        data.get("type")
+    )
+
     amount = data.get("amount")
-    category = data.get("category")
-    description = data.get("description", "")
-    date = data.get("date")
 
-    if not transaction_type or not amount or not date:
+    category = data.get("category")
+
+    description = data.get(
+        "description",
+        ""
+    )
+
+    transaction_date = normalize_date(
+        data.get("date")
+    )
+
+    if not transaction_type:
+
         return jsonify({
             "success": False,
-            "message": "Missing required fields"
+            "message":
+                "Type must be income or expense"
+        }), 400
+
+    try:
+
+        amount = float(amount)
+
+    except (TypeError, ValueError):
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid amount"
+        }), 400
+
+    if amount <= 0:
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Amount must be greater than zero"
+        }), 400
+
+    if not transaction_date:
+
+        return jsonify({
+            "success": False,
+            "message":
+                "A valid date is required"
         }), 400
 
     if not category:
-        category = categorize_transaction(description)
+
+        category = categorize_transaction(
+            description
+        )
+
+    if category not in CATEGORIES:
+
+        category = "Other"
 
     connection = get_db_connection()
 
     connection.execute("""
         INSERT INTO transactions
-        (type, amount, category, description, date)
+        (
+            type,
+            amount,
+            category,
+            description,
+            date
+        )
+
         VALUES (?, ?, ?, ?, ?)
     """, (
         transaction_type,
-        float(amount),
+        amount,
         category,
         description,
-        date
+        transaction_date
     ))
 
     connection.commit()
@@ -324,11 +828,12 @@ def add_transaction():
 
     return jsonify({
         "success": True,
-        "message": "Transaction added successfully"
+        "message":
+            "Transaction added successfully"
     })
 
 
-@app.route("/api/transactions", methods=["GET"])
+@app.route("/api/transactions")
 def get_transactions():
 
     connection = get_db_connection()
@@ -347,29 +852,85 @@ def get_transactions():
     ])
 
 
-@app.route("/api/transactions/<int:transaction_id>",
-           methods=["PUT"])
+@app.route(
+    "/api/transactions/<int:transaction_id>",
+    methods=["PUT"]
+)
 def update_transaction(transaction_id):
 
-    data = request.get_json()
+    data = request.get_json() or {}
+
+    transaction_type = normalize_transaction_type(
+        data.get("type")
+    )
+
+    try:
+
+        amount = float(
+            data.get("amount")
+        )
+
+    except (TypeError, ValueError):
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid amount"
+        }), 400
+
+    category = data.get(
+        "category",
+        "Other"
+    )
+
+    description = data.get(
+        "description",
+        ""
+    )
+
+    transaction_date = normalize_date(
+        data.get("date")
+    )
+
+    if not transaction_type:
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid transaction type"
+        }), 400
+
+    if amount <= 0:
+
+        return jsonify({
+            "success": False,
+            "message": "Amount must be greater than zero"
+        }), 400
+
+    if not transaction_date:
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid date"
+        }), 400
 
     connection = get_db_connection()
 
     cursor = connection.execute("""
         UPDATE transactions
+
         SET
             type = ?,
             amount = ?,
             category = ?,
             description = ?,
             date = ?
+
         WHERE id = ?
     """, (
-        data.get("type"),
-        float(data.get("amount")),
-        data.get("category"),
-        data.get("description", ""),
-        data.get("date"),
+        transaction_type,
+        amount,
+        category,
+        description,
+        transaction_date,
         transaction_id
     ))
 
@@ -377,6 +938,7 @@ def update_transaction(transaction_id):
     connection.close()
 
     if cursor.rowcount == 0:
+
         return jsonify({
             "success": False,
             "message": "Transaction not found"
@@ -388,8 +950,10 @@ def update_transaction(transaction_id):
     })
 
 
-@app.route("/api/transactions/<int:transaction_id>",
-           methods=["DELETE"])
+@app.route(
+    "/api/transactions/<int:transaction_id>",
+    methods=["DELETE"]
+)
 def delete_transaction(transaction_id):
 
     connection = get_db_connection()
@@ -397,12 +961,15 @@ def delete_transaction(transaction_id):
     cursor = connection.execute("""
         DELETE FROM transactions
         WHERE id = ?
-    """, (transaction_id,))
+    """, (
+        transaction_id,
+    ))
 
     connection.commit()
     connection.close()
 
     if cursor.rowcount == 0:
+
         return jsonify({
             "success": False,
             "message": "Transaction not found"
@@ -414,19 +981,42 @@ def delete_transaction(transaction_id):
     })
 
 
-@app.route("/api/categorize", methods=["POST"])
+# =========================================================
+# CATEGORIZATION
+# =========================================================
+
+@app.route(
+    "/api/categorize",
+    methods=["POST"]
+)
 def categorize():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
-    description = data.get("description", "")
+    description = data.get(
+        "description",
+        ""
+    )
 
-    category = categorize_transaction(description)
+    category = categorize_transaction(
+        description
+    )
 
     return jsonify({
         "description": description,
         "category": category
     })
+
+
+@app.route("/api/categories")
+def get_categories():
+
+    return jsonify(CATEGORIES)
+
+
+# =========================================================
+# FINANCIAL SUMMARY
+# =========================================================
 
 @app.route("/api/summary")
 def get_summary():
@@ -435,6 +1025,10 @@ def get_summary():
         calculate_financial_summary()
     )
 
+
+# =========================================================
+# DASHBOARD
+# =========================================================
 
 @app.route("/api/dashboard")
 def dashboard():
@@ -453,109 +1047,357 @@ def dashboard():
     connection.close()
 
     return jsonify({
+
         "summary": summary,
+
         "recent_transactions": [
             dict(transaction)
             for transaction in recent_transactions
         ],
+
         "insights": generate_insights(),
+
         "health": calculate_financial_health()
     })
+
+
+# =========================================================
+# SPENDING BY CATEGORY
+# =========================================================
 
 @app.route("/api/spending-by-category")
 def spending_by_category():
 
+    year = get_requested_year()
+    month = get_requested_month()
+
     connection = get_db_connection()
 
-    results = connection.execute("""
-        SELECT category, SUM(amount) AS total
-        FROM transactions
-        WHERE type = 'expense'
-        GROUP BY category
-        ORDER BY total DESC
-    """).fetchall()
+    if month:
+
+        start_date = f"{year}-{month:02d}-01"
+
+        if month == 12:
+
+            end_date = f"{year + 1}-01-01"
+
+        else:
+
+            end_date = f"{year}-{month + 1:02d}-01"
+
+        rows = connection.execute("""
+            SELECT
+                category,
+                COALESCE(SUM(amount), 0) AS total
+
+            FROM transactions
+
+            WHERE type = 'expense'
+
+            AND date >= ?
+
+            AND date < ?
+
+            GROUP BY category
+
+            ORDER BY total DESC
+        """, (
+            start_date,
+            end_date
+        )).fetchall()
+
+    else:
+
+        rows = connection.execute("""
+            SELECT
+                category,
+                COALESCE(SUM(amount), 0) AS total
+
+            FROM transactions
+
+            WHERE type = 'expense'
+
+            AND strftime('%Y', date) = ?
+
+            GROUP BY category
+
+            ORDER BY total DESC
+        """, (
+            str(year),
+        )).fetchall()
 
     connection.close()
 
+    data = {
+        category: 0
+        for category in CATEGORIES
+        if category != "Salary"
+    }
+
+    for row in rows:
+
+        if row["category"] in data:
+
+            data[row["category"]] = round(
+                float(row["total"] or 0),
+                2
+            )
+
     return jsonify([
         {
-            "category": row["category"],
-            "total": round(row["total"], 2)
+            "category": category,
+            "total": total
         }
-        for row in results
+
+        for category, total
+        in data.items()
+
+        if total > 0
     ])
 
+
+# =========================================================
+# MONTHLY SUMMARY
+# =========================================================
 
 @app.route("/api/monthly-summary")
 def monthly_summary():
 
+    year = get_requested_year()
+    selected_month = get_requested_month()
+
     connection = get_db_connection()
 
-    results = connection.execute("""
+    rows = connection.execute("""
         SELECT
-            substr(date, 1, 7) AS month,
+            CAST(strftime('%m', date) AS INTEGER)
+                AS month,
 
-            SUM(
-                CASE
-                    WHEN type = 'income'
-                    THEN amount
-                    ELSE 0
-                END
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type = 'income'
+                        THEN amount
+                        ELSE 0
+                    END
+                ),
+                0
             ) AS income,
 
-            SUM(
-                CASE
-                    WHEN type = 'expense'
-                    THEN amount
-                    ELSE 0
-                END
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type = 'expense'
+                        THEN amount
+                        ELSE 0
+                    END
+                ),
+                0
             ) AS expenses
 
         FROM transactions
 
-        GROUP BY substr(date, 1, 7)
+        WHERE strftime('%Y', date) = ?
+
+        GROUP BY strftime('%m', date)
 
         ORDER BY month
-    """).fetchall()
+    """, (
+        str(year),
+    )).fetchall()
 
     connection.close()
 
-    return jsonify([
-        {
-            "month": row["month"],
-            "income": round(row["income"], 2),
-            "expenses": round(row["expenses"], 2)
+    monthly_data = {}
+
+    for row in rows:
+
+        month_number = int(
+            row["month"]
+        )
+
+        monthly_data[month_number] = {
+            "income": round(
+                float(row["income"] or 0),
+                2
+            ),
+
+            "expenses": round(
+                float(row["expenses"] or 0),
+                2
+            )
         }
-        for row in results
-    ])
+
+    # ---------------------------------
+    # Always return all 12 months
+    # ---------------------------------
+
+    result = []
+
+    for month_number in range(1, 13):
+
+        values = monthly_data.get(
+            month_number,
+            {
+                "income": 0,
+                "expenses": 0
+            }
+        )
+
+        result.append({
+
+            "month": month_number,
+
+            "month_name":
+                month_name(month_number),
+
+            "year": year,
+
+            "income":
+                values["income"],
+
+            "expenses":
+                values["expenses"]
+        })
+
+    if selected_month:
+
+        result = [
+            item
+            for item in result
+            if item["month"] == selected_month
+        ]
+
+    return jsonify(result)
 
 
-@app.route("/api/budgets", methods=["POST"])
+# =========================================================
+# MONTHLY COMPARISON
+# =========================================================
+
+@app.route("/api/monthly-comparison")
+def monthly_comparison():
+
+    year = get_requested_year()
+    month = get_requested_month()
+
+    if month is None:
+
+        month = datetime.now().month
+
+    current = get_month_summary(
+        year,
+        month
+    )
+
+    previous_year, previous_month = get_previous_month(
+        year,
+        month
+    )
+
+    previous = get_month_summary(
+        previous_year,
+        previous_month
+    )
+
+    return jsonify({
+
+        "current": current,
+
+        "previous": previous,
+
+        "changes": {
+
+            "income":
+                calculate_percentage_change(
+                    current["income"],
+                    previous["income"]
+                ),
+
+            "expenses":
+                calculate_percentage_change(
+                    current["expenses"],
+                    previous["expenses"]
+                ),
+
+            "balance":
+                calculate_percentage_change(
+                    current["balance"],
+                    previous["balance"]
+                ),
+
+            "savings_rate":
+                calculate_percentage_change(
+                    current["savings_rate"],
+                    previous["savings_rate"]
+                )
+        }
+    })
+
+
+# =========================================================
+# BUDGETS
+# =========================================================
+
+@app.route(
+    "/api/budgets",
+    methods=["POST"]
+)
 def add_budget():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
     category = data.get("category")
     amount = data.get("amount")
 
-    if not category or amount is None:
+    if not category:
+
         return jsonify({
             "success": False,
-            "message": "Category and amount are required"
+            "message": "Category is required"
         }), 400
+
+    try:
+
+        amount = float(amount)
+
+    except (TypeError, ValueError):
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid budget amount"
+        }), 400
+
+    if amount <= 0:
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Budget amount must be greater than zero"
+        }), 400
+
+    if category not in CATEGORIES:
+
+        category = "Other"
 
     connection = get_db_connection()
 
     connection.execute("""
         INSERT INTO budgets
-        (category, amount)
+        (
+            category,
+            amount
+        )
+
         VALUES (?, ?)
 
         ON CONFLICT(category)
-        DO UPDATE SET amount = excluded.amount
+
+        DO UPDATE SET
+            amount = excluded.amount
     """, (
         category,
-        float(amount)
+        amount
     ))
 
     connection.commit()
@@ -586,89 +1428,246 @@ def get_budgets():
     ])
 
 
+@app.route(
+    "/api/budgets/<string:category>",
+    methods=["DELETE"]
+)
+def delete_budget(category):
+
+    connection = get_db_connection()
+
+    cursor = connection.execute("""
+        DELETE FROM budgets
+        WHERE category = ?
+    """, (
+        category,
+    ))
+
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount == 0:
+
+        return jsonify({
+            "success": False,
+            "message": "Budget not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "message": "Budget deleted"
+    })
+
+
+# =========================================================
+# BUDGET PROGRESS
+# =========================================================
+
 @app.route("/api/budget-progress")
 def budget_progress():
+
+    year = get_requested_year()
+    month = get_requested_month()
+
+    if month is None:
+
+        month = datetime.now().month
 
     connection = get_db_connection()
 
     budgets = connection.execute("""
         SELECT category, amount
         FROM budgets
+        ORDER BY category
     """).fetchall()
 
     result = []
+
+    if month == 12:
+
+        next_year = year + 1
+        next_month = 1
+
+    else:
+
+        next_year = year
+        next_month = month + 1
+
+    start_date = f"{year}-{month:02d}-01"
+    end_date = f"{next_year}-{next_month:02d}-01"
 
     for budget in budgets:
 
         spending = connection.execute("""
             SELECT COALESCE(SUM(amount), 0)
+
             FROM transactions
+
             WHERE type = 'expense'
+
             AND category = ?
+
+            AND date >= ?
+
+            AND date < ?
         """, (
             budget["category"],
+            start_date,
+            end_date
         )).fetchone()[0]
 
-        budget_amount = budget["amount"]
+        budget_amount = float(
+            budget["amount"]
+        )
+
+        spending = float(
+            spending or 0
+        )
 
         if budget_amount > 0:
+
             percentage = (
                 spending / budget_amount
             ) * 100
+
         else:
+
             percentage = 0
 
         result.append({
-            "category": budget["category"],
-            "budget": round(budget_amount, 2),
-            "spent": round(spending, 2),
-            "percentage": round(percentage, 2),
-            "remaining": round(
-                budget_amount - spending,
-                2
-            )
+
+            "category":
+                budget["category"],
+
+            "budget":
+                round(
+                    budget_amount,
+                    2
+                ),
+
+            "spent":
+                round(
+                    spending,
+                    2
+                ),
+
+            "percentage":
+                round(
+                    percentage,
+                    2
+                ),
+
+            "remaining":
+                round(
+                    budget_amount - spending,
+                    2
+                )
         })
 
     connection.close()
 
     return jsonify(result)
 
-@app.route("/api/goals", methods=["POST"])
+
+# =========================================================
+# GOALS
+# =========================================================
+
+@app.route(
+    "/api/goals",
+    methods=["POST"]
+)
 def add_goal():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
     name = data.get("name")
     target = data.get("target")
-    current = data.get("current", 0)
-    deadline = data.get("deadline")
+    current = data.get(
+        "current",
+        0
+    )
+    deadline = data.get(
+        "deadline"
+    )
 
-    if not name or target is None:
+    if not name:
+
         return jsonify({
             "success": False,
             "message":
-                "Goal name and target are required"
+                "Goal name is required"
         }), 400
+
+    try:
+
+        target = float(target)
+        current = float(current)
+
+    except (TypeError, ValueError):
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Target and current amounts must be numbers"
+        }), 400
+
+    if target <= 0:
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Target must be greater than zero"
+        }), 400
+
+    if current < 0:
+
+        current = 0
+
+    if current > target:
+
+        current = target
+
+    if deadline:
+
+        deadline = normalize_date(
+            deadline
+        )
 
     connection = get_db_connection()
 
-    connection.execute("""
+    cursor = connection.execute("""
         INSERT INTO goals
-        (name, target, current, deadline)
+        (
+            name,
+            target,
+            current,
+            deadline
+        )
+
         VALUES (?, ?, ?, ?)
     """, (
-        name,
-        float(target),
-        float(current),
+        name.strip(),
+        target,
+        current,
         deadline
     ))
 
     connection.commit()
+
+    goal_id = cursor.lastrowid
+
     connection.close()
 
     return jsonify({
+
         "success": True,
-        "message": "Goal created"
+
+        "message":
+            "Goal created",
+
+        "id":
+            goal_id
     })
 
 
@@ -691,6 +1690,148 @@ def get_goals():
     ])
 
 
+@app.route(
+    "/api/goals/<int:goal_id>",
+    methods=["PUT"]
+)
+def update_goal(goal_id):
+
+    data = request.get_json() or {}
+
+    name = data.get("name")
+    target = data.get("target")
+    current = data.get("current")
+    deadline = data.get("deadline")
+
+    connection = get_db_connection()
+
+    existing = connection.execute("""
+        SELECT *
+        FROM goals
+        WHERE id = ?
+    """, (
+        goal_id,
+    )).fetchone()
+
+    if not existing:
+
+        connection.close()
+
+        return jsonify({
+            "success": False,
+            "message": "Goal not found"
+        }), 404
+
+    if name is None:
+        name = existing["name"]
+
+    if target is None:
+        target = existing["target"]
+
+    if current is None:
+        current = existing["current"]
+
+    if deadline is None:
+        deadline = existing["deadline"]
+
+    try:
+
+        target = float(target)
+        current = float(current)
+
+    except (TypeError, ValueError):
+
+        connection.close()
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Invalid goal values"
+        }), 400
+
+    if target <= 0:
+
+        connection.close()
+
+        return jsonify({
+            "success": False,
+            "message":
+                "Target must be greater than zero"
+        }), 400
+
+    current = max(
+        0,
+        min(current, target)
+    )
+
+    if deadline:
+
+        deadline = normalize_date(
+            deadline
+        )
+
+    connection.execute("""
+        UPDATE goals
+
+        SET
+            name = ?,
+            target = ?,
+            current = ?,
+            deadline = ?
+
+        WHERE id = ?
+    """, (
+        name,
+        target,
+        current,
+        deadline,
+        goal_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Goal updated"
+    })
+
+
+@app.route(
+    "/api/goals/<int:goal_id>",
+    methods=["DELETE"]
+)
+def delete_goal(goal_id):
+
+    connection = get_db_connection()
+
+    cursor = connection.execute("""
+        DELETE FROM goals
+        WHERE id = ?
+    """, (
+        goal_id,
+    ))
+
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount == 0:
+
+        return jsonify({
+            "success": False,
+            "message": "Goal not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "message": "Goal deleted"
+    })
+
+
+# =========================================================
+# GOAL PROGRESS
+# =========================================================
+
 @app.route("/api/goal-progress")
 def goal_progress():
 
@@ -699,20 +1840,31 @@ def goal_progress():
     goals = connection.execute("""
         SELECT *
         FROM goals
+        ORDER BY id DESC
     """).fetchall()
+
+    connection.close()
 
     result = []
 
     for goal in goals:
 
-        target = goal["target"]
-        current = goal["current"]
+        target = float(
+            goal["target"]
+        )
+
+        current = float(
+            goal["current"]
+        )
 
         if target > 0:
+
             percentage = (
                 current / target
             ) * 100
+
         else:
+
             percentage = 0
 
         remaining = max(
@@ -721,18 +1873,47 @@ def goal_progress():
         )
 
         result.append({
-            "id": goal["id"],
-            "name": goal["name"],
-            "target": round(target, 2),
-            "current": round(current, 2),
-            "remaining": round(remaining, 2),
-            "percentage": round(percentage, 2),
-            "deadline": goal["deadline"]
+
+            "id":
+                goal["id"],
+
+            "name":
+                goal["name"],
+
+            "target":
+                round(
+                    target,
+                    2
+                ),
+
+            "current":
+                round(
+                    current,
+                    2
+                ),
+
+            "remaining":
+                round(
+                    remaining,
+                    2
+                ),
+
+            "percentage":
+                round(
+                    percentage,
+                    2
+                ),
+
+            "deadline":
+                goal["deadline"]
         })
 
-    connection.close()
-
     return jsonify(result)
+
+
+# =========================================================
+# RECURRING EXPENSE DETECTION
+# =========================================================
 
 @app.route("/api/recurring")
 def detect_recurring():
@@ -748,8 +1929,10 @@ def detect_recurring():
         FROM transactions
 
         WHERE type = 'expense'
+
         AND description IS NOT NULL
-        AND description != ''
+
+        AND TRIM(description) != ''
 
         GROUP BY
             LOWER(description),
@@ -763,13 +1946,25 @@ def detect_recurring():
     connection.close()
 
     return jsonify([
+
         {
-            "description": row["description"],
-            "amount": row["amount"],
-            "occurrences": row["occurrences"]
+            "description":
+                row["description"],
+
+            "amount":
+                row["amount"],
+
+            "occurrences":
+                row["occurrences"]
         }
+
         for row in transactions
     ])
+
+
+# =========================================================
+# FINANCIAL HEALTH
+# =========================================================
 
 @app.route("/api/financial-health")
 def financial_health():
@@ -778,15 +1973,23 @@ def financial_health():
         calculate_financial_health()
     )
 
-@app.route("/api/upload-statement",
-           methods=["POST"])
+
+# =========================================================
+# CSV BANK STATEMENT UPLOAD
+# =========================================================
+
+@app.route(
+    "/api/upload-statement",
+    methods=["POST"]
+)
 def upload_statement():
 
     if "file" not in request.files:
 
         return jsonify({
             "success": False,
-            "message": "No file uploaded"
+            "message":
+                "No file uploaded"
         }), 400
 
     file = request.files["file"]
@@ -795,7 +1998,8 @@ def upload_statement():
 
         return jsonify({
             "success": False,
-            "message": "No file selected"
+            "message":
+                "No file selected"
         }), 400
 
     if not file.filename.lower().endswith(".csv"):
@@ -806,22 +2010,29 @@ def upload_statement():
                 "Only CSV files are supported"
         }), 400
 
+    safe_filename = os.path.basename(
+        file.filename
+    )
+
     filepath = os.path.join(
         app.config["UPLOAD_FOLDER"],
-        file.filename
+        safe_filename
     )
 
     file.save(filepath)
 
     try:
 
-        dataframe = pd.read_csv(filepath)
+        dataframe = pd.read_csv(
+            filepath
+        )
 
     except Exception:
 
         return jsonify({
             "success": False,
-            "message": "Could not read CSV file"
+            "message":
+                "Could not read CSV file"
         }), 400
 
     required_columns = {
@@ -836,10 +2047,13 @@ def upload_statement():
     ):
 
         return jsonify({
+
             "success": False,
+
             "message":
-                "CSV must contain Date, "
-                "Description, Amount and Type columns"
+                "CSV must contain "
+                "Date, Description, "
+                "Amount and Type columns"
         }), 400
 
     connection = get_db_connection()
@@ -847,60 +2061,116 @@ def upload_statement():
     imported = 0
     categorized = 0
     needs_review = 0
+    skipped = 0
 
     for _, row in dataframe.iterrows():
 
-        description = str(
-            row["Description"]
-        )
+        try:
 
-        transaction_type = str(
-            row["Type"]
-        ).lower()
+            description = str(
+                row["Description"]
+            ).strip()
 
-        amount = float(
-            row["Amount"]
-        )
+            transaction_type = (
+                normalize_transaction_type(
+                    row["Type"]
+                )
+            )
 
-        date = str(
-            row["Date"]
-        )
+            if not transaction_type:
 
-        category = categorize_transaction(
-            description
-        )
+                skipped += 1
+                continue
 
-        if category == "Other":
-            needs_review += 1
-        else:
-            categorized += 1
+            amount = float(
+                row["Amount"]
+            )
 
-        connection.execute("""
-            INSERT INTO transactions
-            (type, amount, category, description, date)
-            VALUES (?, ?, ?, ?, ?)
-        """, (
-            transaction_type,
-            amount,
-            category,
-            description,
-            date
-        ))
+            amount = abs(amount)
 
-        imported += 1
+            transaction_date = normalize_date(
+                row["Date"]
+            )
+
+            if amount <= 0:
+
+                skipped += 1
+                continue
+
+            if not transaction_date:
+
+                skipped += 1
+                continue
+
+            category = categorize_transaction(
+                description
+            )
+
+            if category == "Other":
+
+                needs_review += 1
+
+            else:
+
+                categorized += 1
+
+            connection.execute("""
+                INSERT INTO transactions
+                (
+                    type,
+                    amount,
+                    category,
+                    description,
+                    date
+                )
+
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                transaction_type,
+                amount,
+                category,
+                description,
+                transaction_date
+            ))
+
+            imported += 1
+
+        except Exception:
+
+            skipped += 1
 
     connection.commit()
     connection.close()
 
     return jsonify({
+
         "success": True,
-        "imported": imported,
-        "categorized": categorized,
-        "needs_review": needs_review
+
+        "message":
+            f"{imported} transactions imported",
+
+        "imported":
+            imported,
+
+        "categorized":
+            categorized,
+
+        "needs_review":
+            needs_review,
+
+        "skipped":
+            skipped
     })
 
-@app.route("/api/reset-database",
-           methods=["DELETE"])
+
+# =========================================================
+# RESET DATABASE
+# =========================================================
+
+@app.route(
+    "/api/reset-database",
+    methods=["DELETE"]
+)
 def reset_database():
 
     connection = get_db_connection()
@@ -921,14 +2191,22 @@ def reset_database():
     connection.close()
 
     return jsonify({
+
         "success": True,
-        "message": "Database reset"
+
+        "message":
+            "Database reset"
     })
 
 
+# =========================================================
+# APPLICATION START
+# =========================================================
 
 if __name__ == "__main__":
 
     init_database()
 
-    app.run(debug=True)
+    app.run(
+        debug=True
+    )
