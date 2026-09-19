@@ -899,6 +899,31 @@ def upload_statement():
         "needs_review": needs_review
     })
 
+@app.route("/api/reset-database",
+           methods=["DELETE"])
+def reset_database():
+
+    connection = get_db_connection()
+
+    connection.execute(
+        "DELETE FROM transactions"
+    )
+
+    connection.execute(
+        "DELETE FROM budgets"
+    )
+
+    connection.execute(
+        "DELETE FROM goals"
+    )
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Database reset"
+    })
 
 
 
