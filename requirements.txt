@@ -1,0 +1,6 @@
+Flask
+pandas
+PyPDF2
+openpyxl
+requests
+python-dotenv
