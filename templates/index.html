@@ -2,16 +2,12 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="FinFlow — Money in Motion. Track spending, plan budgets and turn financial activity into actionable insights."
     >
 
     <title>FinFlow | Money in Motion</title>
@@ -21,1562 +17,1223 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
 
-    <!-- Chart.js is used only for local browser-side chart rendering. -->
-    <script
-        src="https://cdn.jsdelivr.net/npm/chart.js"
-        defer
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
 
 <body>
 
+
 <!-- =========================================================
-     APP SHELL
+     SIDEBAR
 ========================================================= -->
 
-<div class="app-shell">
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            FF
+        </div>
+
+        <div class="brand-text">
+
+            <h1>
+                FinFlow
+            </h1>
+
+            <p>
+                Money in Motion
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+        <button
+            class="nav-item active"
+            data-view="home"
+        >
+
+            <span class="nav-icon">
+                🏠
+            </span>
+
+            <span>
+                Home
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-view="transactions"
+        >
+
+            <span class="nav-icon">
+                💳
+            </span>
+
+            <span>
+                Transactions
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-view="budget"
+        >
+
+            <span class="nav-icon">
+                🎯
+            </span>
+
+            <span>
+                Budget &amp; Goals
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-view="coach"
+        >
+
+            <span class="nav-icon">
+                ✨
+            </span>
+
+            <span>
+                Smart Coach
+            </span>
+
+        </button>
+
+    </nav>
+
+</aside>
+
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main class="main-content">
+
+
+<!-- =========================================================
+     HOME
+========================================================= -->
+
+<section
+    id="home-view"
+    class="page-view active-view"
+>
+
+
+    <!-- PAGE HEADER -->
+
+    <header class="page-header">
+
+        <div>
+
+            <p class="eyebrow">
+                FINANCIAL DASHBOARD
+            </p>
+
+            <h2>
+                Good Morning! 👋
+            </h2>
+
+            <p class="page-subtitle">
+                Here's your financial snapshot.
+            </p>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- HERO -->
+
+    <section class="hero-card">
+
+        <div class="hero-content">
+
+            <p class="hero-label">
+                FINFLOW
+            </p>
+
+            <h3>
+                Your money has a direction.
+            </h3>
+
+            <p>
+                Track today. Plan tomorrow.
+            </p>
+
+            <button
+                class="primary-button"
+                id="view-insights-btn"
+                type="button"
+            >
+                View Insights →
+            </button>
+
+        </div>
+
+    </section>
+
 
 
     <!-- =====================================================
-         SIDEBAR
+         SUMMARY CARDS
     ====================================================== -->
 
-    <aside class="sidebar">
+    <section class="summary-grid">
 
-        <div class="brand">
+
+        <!-- BALANCE -->
+
+        <article class="stat-card">
+
+            <p class="stat-label">
+                Total Balance
+            </p>
+
+            <h3 id="balance-value">
+                ₹0.00
+            </h3>
+
+            <p
+                class="stat-change"
+                id="balance-change"
+            >
+                — from last month
+            </p>
+
+        </article>
+
+
+
+        <!-- INCOME -->
+
+        <article class="stat-card">
+
+            <p class="stat-label">
+                Total Income
+            </p>
+
+            <h3 id="income-value">
+                ₹0.00
+            </h3>
+
+            <p
+                class="stat-change"
+                id="income-change"
+            >
+                — from last month
+            </p>
+
+        </article>
+
+
+
+        <!-- EXPENSES -->
+
+        <article class="stat-card">
+
+            <p class="stat-label">
+                Total Expenses
+            </p>
+
+            <h3 id="expense-value">
+                ₹0.00
+            </h3>
+
+            <p
+                class="stat-change"
+                id="expense-change"
+            >
+                — from last month
+            </p>
+
+        </article>
+
+
+
+        <!-- SAVINGS RATE -->
+
+        <article class="stat-card">
+
+            <p class="stat-label">
+                Savings Rate
+            </p>
+
+            <h3 id="savings-value">
+                0%
+            </h3>
+
+            <p
+                class="stat-change"
+                id="savings-change"
+            >
+                — from last month
+            </p>
+
+        </article>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CHARTS
+    ====================================================== -->
+
+    <section class="dashboard-grid two-column">
+
+
+        <!-- INCOME VS EXPENSES -->
+
+        <article class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <p class="card-label">
+                        CASH FLOW
+                    </p>
+
+                    <h3>
+                        Income vs Expenses
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-container">
+
+
+                <div class="chart-controls">
+
+
+                    <select
+                        id="cashflow-month"
+                        aria-label="Cash flow month"
+                    >
+
+                        <option value="all">
+                            All Months
+                        </option>
+
+                        <option value="1">
+                            January
+                        </option>
+
+                        <option value="2">
+                            February
+                        </option>
+
+                        <option value="3">
+                            March
+                        </option>
+
+                        <option value="4">
+                            April
+                        </option>
+
+                        <option value="5">
+                            May
+                        </option>
+
+                        <option value="6">
+                            June
+                        </option>
+
+                        <option value="7">
+                            July
+                        </option>
+
+                        <option value="8">
+                            August
+                        </option>
+
+                        <option value="9">
+                            September
+                        </option>
+
+                        <option value="10">
+                            October
+                        </option>
+
+                        <option value="11">
+                            November
+                        </option>
+
+                        <option value="12">
+                            December
+                        </option>
+
+                    </select>
+
+
+                    <select
+                        id="cashflow-year"
+                        aria-label="Cash flow year"
+                    >
+                    </select>
+
+                </div>
+
+
+                <canvas
+                    id="income-expense-chart"
+                ></canvas>
+
+            </div>
+
+        </article>
+
+
+
+        <!-- SPENDING BREAKDOWN -->
+
+        <article class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <p class="card-label">
+                        SPENDING
+                    </p>
+
+                    <h3>
+                        Spending Breakdown
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-container spending-chart-container">
+
+
+                <div class="chart-controls">
+
+                    <select
+                        id="spending-month"
+                        aria-label="Spending month"
+                    >
+
+                        <option value="1">
+                            January
+                        </option>
+
+                        <option value="2">
+                            February
+                        </option>
+
+                        <option value="3">
+                            March
+                        </option>
+
+                        <option value="4">
+                            April
+                        </option>
+
+                        <option value="5">
+                            May
+                        </option>
+
+                        <option value="6">
+                            June
+                        </option>
+
+                        <option value="7">
+                            July
+                        </option>
+
+                        <option value="8">
+                            August
+                        </option>
+
+                        <option value="9">
+                            September
+                        </option>
+
+                        <option value="10">
+                            October
+                        </option>
+
+                        <option value="11">
+                            November
+                        </option>
+
+                        <option value="12">
+                            December
+                        </option>
+
+                    </select>
+
+
+                    <select
+                        id="spending-year"
+                        aria-label="Spending year"
+                    >
+                    </select>
+
+                </div>
+
+
+                <div class="donut-wrapper">
+
+                    <canvas
+                        id="spending-chart"
+                    ></canvas>
+
+                    <div class="donut-center">
+
+                        <strong id="spending-total">
+                            ₹0
+                        </strong>
+
+                        <span>
+                            Total Spent
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         BUDGET + SMART COACH PREVIEW
+    ====================================================== -->
+
+    <section class="dashboard-grid two-column">
+
+
+        <!-- BUDGET PROGRESS -->
+
+        <article class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <p class="card-label">
+                        PLANNING
+                    </p>
+
+                    <h3>
+                        Budget Progress
+                    </h3>
+
+                </div>
+
+            </div>
+
 
             <div
-                class="brand-logo"
-                aria-hidden="true"
+                id="home-budget-progress"
+                class="budget-preview-list"
             >
-                FF
-            </div>
 
-            <div class="brand-text">
+                <div class="empty-state">
 
-                <h1>
-                    FinFlow
-                </h1>
+                    <p>
+                        No budgets created yet.
+                    </p>
 
-                <p>
-                    Money in Motion
-                </p>
+                </div>
 
             </div>
+
+        </article>
+
+
+
+        <!-- SMART COACH PREVIEW -->
+
+        <article class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <p class="card-label">
+                        SMART COACH
+                    </p>
+
+                    <h3>
+                        Financial Insights
+                    </h3>
+
+                </div>
+
+                <span>
+                    ✨
+                </span>
+
+            </div>
+
+
+            <div
+                id="home-insights"
+                class="insight-list"
+            >
+
+                <div class="insight-item">
+
+                    <span>
+                        💡
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Spending Insight
+                        </strong>
+
+                        <p>
+                            Your financial insights will appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     TRANSACTIONS
+========================================================= -->
+
+<section
+    id="transactions-view"
+    class="page-view"
+>
+
+
+    <header class="page-header">
+
+        <div>
+
+            <p class="eyebrow">
+                MONEY ACTIVITY
+            </p>
+
+            <h2>
+                Transactions
+            </h2>
+
+            <p class="page-subtitle">
+                Track, categorize and manage your income and expenses.
+            </p>
 
         </div>
 
 
-        <nav
-            class="sidebar-nav"
-            aria-label="Main navigation"
-        >
+        <div class="header-actions">
 
             <button
-                class="nav-item active"
-                data-view="home"
+                class="secondary-button"
+                id="upload-statement-btn"
                 type="button"
             >
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    🏠
-                </span>
-
-                <span>
-                    Home
-                </span>
+                📄 Upload Statement
             </button>
 
 
-            <button
-                class="nav-item"
-                data-view="transactions"
-                type="button"
+            <input
+                type="file"
+                id="statement-file"
+                accept=".csv"
+                hidden
             >
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    💳
-                </span>
-
-                <span>
-                    Transactions
-                </span>
-            </button>
 
 
             <button
-                class="nav-item"
-                data-view="budget"
+                class="primary-button"
+                id="add-transaction-btn"
                 type="button"
             >
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    🎯
-                </span>
-
-                <span>
-                    Budget &amp; Goals
-                </span>
+                + Add Transaction
             </button>
 
+        </div>
 
-            <button
-                class="nav-item"
-                data-view="coach"
-                type="button"
-            >
-                <span
-                    class="nav-icon"
-                    aria-hidden="true"
-                >
-                    ✨
-                </span>
-
-                <span>
-                    Smart Coach
-                </span>
-            </button>
-
-        </nav>
+    </header>
 
 
-        <div class="sidebar-footer">
 
-            <p>
-                FINFLOW
-            </p>
+    <!-- SEARCH + FILTER -->
+
+    <section class="transaction-controls">
+
+
+        <div class="search-box">
 
             <span>
-                Money in Motion
+                🔍
+            </span>
+
+            <input
+                id="transaction-search"
+                type="text"
+                placeholder="Search transactions..."
+            >
+
+        </div>
+
+
+        <div class="filter-tabs">
+
+            <button
+                class="filter-tab active"
+                data-filter="all"
+                type="button"
+            >
+                All
+            </button>
+
+
+            <button
+                class="filter-tab"
+                data-filter="income"
+                type="button"
+            >
+                Income
+            </button>
+
+
+            <button
+                class="filter-tab"
+                data-filter="expense"
+                type="button"
+            >
+                Expense
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- TRANSACTION TABLE -->
+
+    <section class="dashboard-card transaction-table-card">
+
+        <table class="transaction-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Description
+                    </th>
+
+                    <th>
+                        Category
+                    </th>
+
+                    <th>
+                        Type
+                    </th>
+
+                    <th>
+                        Amount
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="transaction-table-body">
+
+                <tr>
+
+                    <td colspan="5">
+                        No transactions yet
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+
+
+    <!-- CATEGORIES -->
+
+    <section class="dashboard-card">
+
+        <p class="card-label">
+            CATEGORIES
+        </p>
+
+        <h3>
+            Supported Categories
+        </h3>
+
+
+        <div class="category-chips">
+
+            <span>
+                🍔 Food
+            </span>
+
+            <span>
+                🚗 Transport
+            </span>
+
+            <span>
+                🛍️ Shopping
+            </span>
+
+            <span>
+                📚 Education
+            </span>
+
+            <span>
+                📄 Bills
+            </span>
+
+            <span>
+                🎬 Entertainment
+            </span>
+
+            <span>
+                ❤️ Health
+            </span>
+
+            <span>
+                💰 Salary
+            </span>
+
+            <span>
+                📦 Other
             </span>
 
         </div>
 
-    </aside>
+    </section>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     BUDGET & GOALS
+========================================================= -->
+
+<section
+    id="budget-view"
+    class="page-view"
+>
+
+
+    <header class="page-header">
+
+        <div>
+
+            <p class="eyebrow">
+                FINANCIAL PLANNING
+            </p>
+
+            <h2>
+                Budget &amp; Goals
+            </h2>
+
+            <p class="page-subtitle">
+                Plan your spending and work toward your savings goals.
+            </p>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <button
+                class="secondary-button"
+                id="create-budget-btn"
+                type="button"
+            >
+                + Create Budget
+            </button>
+
+
+            <button
+                class="primary-button"
+                id="create-goal-btn"
+                type="button"
+            >
+                + Create Goal
+            </button>
+
+        </div>
+
+    </header>
 
 
 
     <!-- =====================================================
-         MAIN CONTENT
+         BUDGET OVERVIEW
     ====================================================== -->
 
-    <main class="main-content">
+    <section class="dashboard-card">
 
+        <div class="card-header">
 
-        <!-- =================================================
-             HOME
-        ================================================== -->
-
-        <section
-            id="home-view"
-            class="page-view active-view"
-        >
-
-            <header class="page-header">
-
-                <div>
-
-                    <p class="eyebrow">
-                        FINANCIAL DASHBOARD
-                    </p>
-
-                    <h2>
-                        Good Morning! 👋
-                    </h2>
-
-                    <p class="page-subtitle">
-                        Here's your financial snapshot.
-                    </p>
-
-                </div>
-
-            </header>
-
-
-            <!-- HERO -->
-
-            <section class="hero-card">
-
-                <div class="hero-content">
-
-                    <p class="hero-label">
-                        FINFLOW
-                    </p>
-
-                    <h3>
-                        Your money has a direction.
-                    </h3>
-
-                    <p>
-                        Track today. Plan tomorrow.
-                    </p>
-
-                    <button
-                        class="primary-button"
-                        id="view-insights-btn"
-                        type="button"
-                    >
-                        View Insights →
-                    </button>
-
-                </div>
-
-            </section>
-
-
-            <!-- SUMMARY CARDS -->
-
-            <section class="summary-grid">
-
-                <article class="stat-card">
-
-                    <p class="stat-label">
-                        Total Balance
-                    </p>
-
-                    <h3 id="balance-value">
-                        ₹0.00
-                    </h3>
-
-                    <p
-                        class="stat-change"
-                        id="balance-change"
-                    >
-                        — from last month
-                    </p>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                    <p class="stat-label">
-                        Total Income
-                    </p>
-
-                    <h3 id="income-value">
-                        ₹0.00
-                    </h3>
-
-                    <p
-                        class="stat-change"
-                        id="income-change"
-                    >
-                        — from last month
-                    </p>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                    <p class="stat-label">
-                        Total Expenses
-                    </p>
-
-                    <h3 id="expense-value">
-                        ₹0.00
-                    </h3>
-
-                    <p
-                        class="stat-change"
-                        id="expense-change"
-                    >
-                        — from last month
-                    </p>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                    <p class="stat-label">
-                        Savings Rate
-                    </p>
-
-                    <h3 id="savings-value">
-                        0%
-                    </h3>
-
-                    <p
-                        class="stat-change"
-                        id="savings-change"
-                    >
-                        — from last month
-                    </p>
-
-                </article>
-
-            </section>
-
-
-            <!-- CHARTS -->
-
-            <section class="dashboard-grid two-column">
-
-
-                <!-- INCOME VS EXPENSES -->
-
-                <article class="dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="card-label">
-                                CASH FLOW
-                            </p>
-
-                            <h3>
-                                Income vs Expenses
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="chart-container">
-
-                        <div class="chart-controls">
-
-                            <select
-                                id="cashflow-month"
-                                aria-label="Cash flow month"
-                            >
-                                <option value="all">
-                                    All Months
-                                </option>
-
-                                <option value="1">
-                                    January
-                                </option>
-
-                                <option value="2">
-                                    February
-                                </option>
-
-                                <option value="3">
-                                    March
-                                </option>
-
-                                <option value="4">
-                                    April
-                                </option>
-
-                                <option value="5">
-                                    May
-                                </option>
-
-                                <option value="6">
-                                    June
-                                </option>
-
-                                <option value="7">
-                                    July
-                                </option>
-
-                                <option value="8">
-                                    August
-                                </option>
-
-                                <option value="9">
-                                    September
-                                </option>
-
-                                <option value="10">
-                                    October
-                                </option>
-
-                                <option value="11">
-                                    November
-                                </option>
-
-                                <option value="12">
-                                    December
-                                </option>
-
-                            </select>
-
-
-                            <select
-                                id="cashflow-year"
-                                aria-label="Cash flow year"
-                            >
-                            </select>
-
-                        </div>
-
-
-                        <div class="chart-wrapper">
-
-                            <canvas
-                                id="income-expense-chart"
-                            ></canvas>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-
-                <!-- SPENDING BREAKDOWN -->
-
-                <article class="dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="card-label">
-                                SPENDING
-                            </p>
-
-                            <h3>
-                                Spending Breakdown
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="chart-container spending-chart-container">
-
-                        <div class="chart-controls">
-
-                            <select
-                                id="spending-month"
-                                aria-label="Spending month"
-                            >
-                                <option value="1">
-                                    January
-                                </option>
-
-                                <option value="2">
-                                    February
-                                </option>
-
-                                <option value="3">
-                                    March
-                                </option>
-
-                                <option value="4">
-                                    April
-                                </option>
-
-                                <option value="5">
-                                    May
-                                </option>
-
-                                <option value="6">
-                                    June
-                                </option>
-
-                                <option value="7">
-                                    July
-                                </option>
-
-                                <option value="8">
-                                    August
-                                </option>
-
-                                <option value="9">
-                                    September
-                                </option>
-
-                                <option value="10">
-                                    October
-                                </option>
-
-                                <option value="11">
-                                    November
-                                </option>
-
-                                <option value="12">
-                                    December
-                                </option>
-
-                            </select>
-
-
-                            <select
-                                id="spending-year"
-                                aria-label="Spending year"
-                            >
-                            </select>
-
-                        </div>
-
-
-                        <div class="donut-wrapper">
-
-                            <canvas
-                                id="spending-chart"
-                            ></canvas>
-
-                            <div class="donut-center">
-
-                                <strong id="spending-total">
-                                    ₹0
-                                </strong>
-
-                                <span>
-                                    Total Spent
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-            </section>
-
-
-            <!-- PLANNING + INSIGHTS -->
-
-            <section class="dashboard-grid two-column">
-
-
-                <!-- BUDGET PREVIEW -->
-
-                <article class="dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="card-label">
-                                PLANNING
-                            </p>
-
-                            <h3>
-                                Budget Progress
-                            </h3>
-
-                        </div>
-
-                        <button
-                            class="text-button"
-                            type="button"
-                            data-open-page="budget"
-                        >
-                            View all →
-                        </button>
-
-                    </div>
-
-
-                    <div
-                        id="home-budget-progress"
-                        class="budget-preview-list"
-                    >
-
-                        <div class="empty-state">
-
-                            <p>
-                                No budgets created yet.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-
-                <!-- SMART COACH PREVIEW -->
-
-                <article class="dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="card-label">
-                                SMART COACH
-                            </p>
-
-                            <h3>
-                                Financial Insights
-                            </h3>
-
-                        </div>
-
-                        <span
-                            aria-hidden="true"
-                        >
-                            ✨
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        id="home-insights"
-                        class="insight-list"
-                    >
-
-                        <div class="insight-item">
-
-                            <span>
-                                💡
-                            </span>
-
-                            <div>
-
-                                <strong>
-                                    Spending Insight
-                                </strong>
-
-                                <p>
-                                    Your financial insights will appear here.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-            </section>
-
-
-            <!-- RECURRING SUMMARY -->
-
-            <section class="dashboard-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <p class="card-label">
-                            INTELLIGENCE
-                        </p>
-
-                        <h3>
-                            Recurring Payments
-                        </h3>
-
-                    </div>
-
-                    <button
-                        class="text-button"
-                        type="button"
-                        data-open-page="coach"
-                    >
-                        Smart Coach →
-                    </button>
-
-                </div>
-
-
-                <div
-                    id="home-recurring-list"
-                    class="recurring-preview-list"
-                >
-
-                    <div class="empty-state">
-
-                        <p>
-                            Recurring expenses will appear here once FinFlow detects repeated payments.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </section>
-
-
-
-        <!-- =================================================
-             TRANSACTIONS
-        ================================================== -->
-
-        <section
-            id="transactions-view"
-            class="page-view"
-        >
-
-            <header class="page-header">
-
-                <div>
-
-                    <p class="eyebrow">
-                        MONEY ACTIVITY
-                    </p>
-
-                    <h2>
-                        Transactions
-                    </h2>
-
-                    <p class="page-subtitle">
-                        Track, categorize and manage your income and expenses.
-                    </p>
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <button
-                        class="secondary-button"
-                        id="upload-statement-btn"
-                        type="button"
-                    >
-                        📄 Upload Statement
-                    </button>
-
-
-                    <input
-                        type="file"
-                        id="statement-file"
-                        accept=".csv,.pdf,text/csv,application/pdf"
-                        hidden
-                    >
-
-
-                    <button
-                        class="primary-button"
-                        id="add-transaction-btn"
-                        type="button"
-                    >
-                        + Add Transaction
-                    </button>
-
-                </div>
-
-            </header>
-
-
-            <!-- IMPORT INFORMATION -->
-
-            <section class="dashboard-card import-info-card">
-
-                <div>
-
-                    <p class="card-label">
-                        STATEMENT IMPORT
-                    </p>
-
-                    <h3>
-                        Import your financial activity
-                    </h3>
-
-                    <p>
-                        FinFlow supports CSV and text-based PDF bank statements.
-                        Transactions are parsed, categorized and saved locally in SQLite.
-                    </p>
-
-                </div>
-
-                <div class="supported-file-badges">
-
-                    <span>
-                        CSV
-                    </span>
-
-                    <span>
-                        PDF
-                    </span>
-
-                </div>
-
-            </section>
-
-
-            <!-- SEARCH + FILTER -->
-
-            <section class="transaction-controls">
-
-                <div class="search-box">
-
-                    <span
-                        aria-hidden="true"
-                    >
-                        🔍
-                    </span>
-
-                    <input
-                        id="transaction-search"
-                        type="search"
-                        placeholder="Search transactions..."
-                        autocomplete="off"
-                    >
-
-                </div>
-
-
-                <div class="filter-tabs">
-
-                    <button
-                        class="filter-tab active"
-                        data-filter="all"
-                        type="button"
-                    >
-                        All
-                    </button>
-
-
-                    <button
-                        class="filter-tab"
-                        data-filter="income"
-                        type="button"
-                    >
-                        Income
-                    </button>
-
-
-                    <button
-                        class="filter-tab"
-                        data-filter="expense"
-                        type="button"
-                    >
-                        Expense
-                    </button>
-
-                </div>
-
-            </section>
-
-
-            <!-- TRANSACTION TABLE -->
-
-            <section class="dashboard-card transaction-table-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <p class="card-label">
-                            TRANSACTION HISTORY
-                        </p>
-
-                        <h3>
-                            All Transactions
-                        </h3>
-
-                    </div>
-
-                    <span
-                        id="transaction-count"
-                        class="table-meta"
-                    >
-                        0 records
-                    </span>
-
-                </div>
-
-
-                <div class="table-scroll">
-
-                    <table class="transaction-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th>
-                                    Description
-                                </th>
-
-                                <th>
-                                    Category
-                                </th>
-
-                                <th>
-                                    Type
-                                </th>
-
-                                <th>
-                                    Amount
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="transaction-table-body">
-
-                            <tr>
-
-                                <td colspan="5">
-                                    No transactions yet
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-            <!-- CATEGORIES -->
-
-            <section class="dashboard-card">
+            <div>
 
                 <p class="card-label">
-                    CATEGORIES
+                    MONTHLY BUDGET
                 </p>
 
                 <h3>
-                    Supported Categories
+                    Budget Overview
                 </h3>
 
+            </div>
 
-                <div class="category-chips">
-
-                    <span>
-                        🍔 Food
-                    </span>
-
-                    <span>
-                        🚗 Transport
-                    </span>
-
-                    <span>
-                        🛍️ Shopping
-                    </span>
-
-                    <span>
-                        📚 Education
-                    </span>
-
-                    <span>
-                        📄 Bills
-                    </span>
-
-                    <span>
-                        🎬 Entertainment
-                    </span>
-
-                    <span>
-                        ❤️ Health
-                    </span>
-
-                    <span>
-                        💰 Salary
-                    </span>
-
-                    <span>
-                        📦 Other
-                    </span>
-
-                </div>
-
-            </section>
-
-        </section>
+        </div>
 
 
-
-        <!-- =================================================
-             BUDGET & GOALS
-        ================================================== -->
-
-        <section
-            id="budget-view"
-            class="page-view"
+        <div
+            id="budget-list"
+            class="budget-list"
         >
 
-            <header class="page-header">
+            <div class="empty-state">
 
-                <div>
+                <p>
+                    No budgets created yet.
+                </p>
 
-                    <p class="eyebrow">
-                        FINANCIAL PLANNING
-                    </p>
-
-                    <h2>
-                        Budget &amp; Goals
-                    </h2>
-
-                    <p class="page-subtitle">
-                        Plan your spending and work toward your savings goals.
-                    </p>
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <button
-                        class="secondary-button"
-                        id="create-budget-btn"
-                        type="button"
-                    >
-                        + Create Budget
-                    </button>
-
-
-                    <button
-                        class="primary-button"
-                        id="create-goal-btn"
-                        type="button"
-                    >
-                        + Create Goal
-                    </button>
-
-                </div>
-
-            </header>
-
-
-            <!-- BUDGET OVERVIEW -->
-
-            <section class="dashboard-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <p class="card-label">
-                            MONTHLY PLANNING
-                        </p>
-
-                        <h3>
-                            Budget Overview
-                        </h3>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    id="budget-list"
-                    class="budget-list"
+                <button
+                    class="primary-button"
+                    id="empty-create-budget-btn"
+                    type="button"
                 >
+                    + Create Budget
+                </button>
 
-                    <div class="empty-state">
+            </div>
 
-                        <p>
-                            No budgets created yet.
-                        </p>
+        </div>
 
-                        <button
-                            class="primary-button"
-                            id="empty-create-budget-btn"
-                            type="button"
-                        >
-                            + Create Budget
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </section>
+    </section>
 
 
-            <!-- SAVINGS GOALS -->
 
-            <section>
+    <!-- =====================================================
+         SAVINGS GOALS
+    ====================================================== -->
 
-                <div class="section-heading">
+    <section>
 
-                    <p class="eyebrow">
-                        SAVINGS
-                    </p>
+        <div class="section-heading">
 
-                    <h3>
-                        Savings Goals
-                    </h3>
+            <p class="eyebrow">
+                SAVINGS
+            </p>
 
-                </div>
+            <h3>
+                Savings Goals
+            </h3>
 
-
-                <div
-                    id="goals-list"
-                    class="goal-grid"
-                >
-
-                    <article class="dashboard-card goal-card">
-
-                        <div class="goal-card-icon">
-                            🎯
-                        </div>
-
-                        <p class="card-label">
-                            SAVINGS GOAL
-                        </p>
-
-                        <h3>
-                            Create your first goal
-                        </h3>
-
-                        <p>
-                            Set a target and track your progress.
-                        </p>
-
-                        <button
-                            class="primary-button"
-                            id="empty-create-goal-btn"
-                            type="button"
-                        >
-                            + Create Goal
-                        </button>
-
-                    </article>
-
-                </div>
-
-            </section>
+        </div>
 
 
-            <!-- PLANNING NOTE -->
+        <div
+            id="goals-list"
+            class="goal-grid"
+        >
 
-            <section class="dashboard-card planning-note">
+            <article class="dashboard-card goal-card">
 
-                <div class="planning-note-icon">
+                <div class="goal-card-icon">
                     🎯
                 </div>
 
-                <div>
-
-                    <p class="card-label">
-                        FINFLOW PLANNING ENGINE
-                    </p>
-
-                    <h3>
-                        Give every rupee a direction.
-                    </h3>
-
-                    <p>
-                        Set category budgets and savings goals to turn your
-                        financial activity into a practical monthly plan.
-                    </p>
-
-                </div>
-
-            </section>
-
-        </section>
-
-
-
-        <!-- =================================================
-             SMART COACH
-        ================================================== -->
-
-        <section
-            id="coach-view"
-            class="page-view"
-        >
-
-            <header class="page-header">
-
-                <div>
-
-                    <p class="eyebrow">
-                        FINANCIAL INTELLIGENCE
-                    </p>
-
-                    <h2>
-                        Smart Coach ✨
-                    </h2>
-
-                    <p class="page-subtitle">
-                        Turn your financial activity into actionable insights.
-                    </p>
-
-                </div>
-
-            </header>
-
-
-            <!-- FINANCIAL HEALTH -->
-
-            <section class="health-card dashboard-card">
-
-                <div class="health-score-block">
-
-                    <p class="card-label">
-                        YOUR FINANCIAL HEALTH
-                    </p>
-
-                    <div class="health-score-row">
-
-                        <h3 id="financial-health-score">
-                            0
-                        </h3>
-
-                        <span>
-                            / 100
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="health-status-block">
-
-                    <p id="financial-health-status">
-                        Start adding transactions to receive your financial health score.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- RULE-BASED INSIGHTS -->
-
-            <section>
-
-                <div class="section-heading">
-
-                    <p class="eyebrow">
-                        SMART INSIGHTS
-                    </p>
-
-                    <h3>
-                        What your money is telling you
-                    </h3>
-
-                </div>
-
-
-                <div
-                    id="coach-insights"
-                    class="insight-grid"
-                >
-
-                    <article class="dashboard-card coach-card">
-
-                        <div class="coach-card-icon">
-                            💡
-                        </div>
-
-                        <p class="card-label">
-                            SPENDING INSIGHT
-                        </p>
-
-                        <h3>
-                            Understand your spending
-                        </h3>
-
-                        <p>
-                            FinFlow will identify meaningful changes in your spending.
-                        </p>
-
-                    </article>
-
-
-                    <article class="dashboard-card coach-card">
-
-                        <div class="coach-card-icon">
-                            ⚠️
-                        </div>
-
-                        <p class="card-label">
-                            BUDGET ALERT
-                        </p>
-
-                        <h3>
-                            Stay within your limits
-                        </h3>
-
-                        <p>
-                            You'll see alerts when a category approaches its budget.
-                        </p>
-
-                    </article>
-
-
-                    <article class="dashboard-card coach-card">
-
-                        <div class="coach-card-icon">
-                            🔄
-                        </div>
-
-                        <p class="card-label">
-                            RECURRING EXPENSE
-                        </p>
-
-                        <h3>
-                            Detect repeated payments
-                        </h3>
-
-                        <p>
-                            Identify subscriptions and regular bills.
-                        </p>
-
-                    </article>
-
-
-                    <article class="dashboard-card coach-card">
-
-                        <div class="coach-card-icon">
-                            🎯
-                        </div>
-
-                        <p class="card-label">
-                            SAVINGS OPPORTUNITY
-                        </p>
-
-                        <h3>
-                            Find opportunities to save
-                        </h3>
-
-                        <p>
-                            Identify areas where spending could potentially be reduced.
-                        </p>
-
-                    </article>
-
-
-                    <article class="dashboard-card coach-card">
-
-                        <div class="coach-card-icon">
-                            🏆
-                        </div>
-
-                        <p class="card-label">
-                            GOAL PROGRESS
-                        </p>
-
-                        <h3>
-                            Track your progress
-                        </h3>
-
-                        <p>
-                            Monitor your progress toward your savings goals.
-                        </p>
-
-                    </article>
-
-
-                    <article class="dashboard-card coach-card">
-
-                        <div class="coach-card-icon">
-                            ✨
-                        </div>
-
-                        <p class="card-label">
-                            SMART COACH
-                        </p>
-
-                        <h3>
-                            Your financial journey starts here.
-                        </h3>
-
-                        <p>
-                            Add transactions, create budgets and set savings goals
-                            to unlock financial insights.
-                        </p>
-
-                        <button
-                            class="primary-button"
-                            id="coach-add-transaction-btn"
-                            type="button"
-                        >
-                            Add Transaction
-                        </button>
-
-                    </article>
-
-                </div>
-
-            </section>
-
-
-            <!-- RECURRING PAYMENTS -->
-
-            <section class="dashboard-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <p class="card-label">
-                            RECURRING PAYMENT DETECTOR
-                        </p>
-
-                        <h3>
-                            Repeated Expenses
-                        </h3>
-
-                    </div>
-
-                    <span
-                        aria-hidden="true"
-                    >
-                        🔄
-                    </span>
-
-                </div>
-
-
-                <div
-                    id="recurring-expenses-list"
-                    class="recurring-list"
-                >
-
-                    <div class="empty-state">
-
-                        <p>
-                            FinFlow will identify repeated payments from your transaction history.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- AI COACH -->
-
-            <section class="dashboard-card ai-coach-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <p class="card-label">
-                            OPTIONAL AI ASSISTANT
-                        </p>
-
-                        <h3>
-                            Ask Smart Coach
-                        </h3>
-
-                    </div>
-
-                    <span
-                        id="ai-status-badge"
-                        class="status-badge"
-                    >
-                        Local Mode
-                    </span>
-
-                </div>
-
-
-                <p class="ai-coach-description">
-                    Ask questions about your FinFlow financial data,
-                    such as spending, savings, budgets or recurring payments.
+                <h3>
+                    Create your first goal
+                </h3>
+
+                <p>
+                    Set a target and track your progress.
                 </p>
 
-
-                <div
-                    id="ai-chat-messages"
-                    class="ai-chat-messages"
-                    aria-live="polite"
+                <button
+                    class="primary-button"
+                    id="empty-create-goal-btn"
+                    type="button"
                 >
+                    + Create Goal
+                </button>
 
-                    <div class="chat-message assistant">
+            </article>
 
-                        <div class="chat-avatar">
-                            ✨
-                        </div>
+        </div>
 
-                        <div class="chat-bubble">
-
-                            <strong>
-                                Smart Coach
-                            </strong>
-
-                            <p>
-                                Ask me about your spending, income, budgets,
-                                savings or recurring expenses.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
+    </section>
 
 
-                <form
-                    id="ai-chat-form"
-                    class="ai-chat-form"
-                >
-
-                    <label
-                        for="ai-chat-input"
-                        class="sr-only"
-                    >
-                        Ask Smart Coach
-                    </label>
-
-                    <input
-                        id="ai-chat-input"
-                        name="message"
-                        type="text"
-                        autocomplete="off"
-                        placeholder="Ask: How much did I spend on food?"
-                        maxlength="500"
-                    >
-
-                    <button
-                        id="ai-chat-submit"
-                        class="primary-button"
-                        type="submit"
-                    >
-                        Ask →
-                    </button>
-
-                </form>
+</section>
 
 
-                <div class="voice-controls">
 
-                    <button
-                        id="voice-input-btn"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        🎙️ Voice Input
-                    </button>
+<!-- =========================================================
+     SMART COACH
+========================================================= -->
 
-                    <span
-                        id="voice-status"
-                        class="voice-status"
-                        aria-live="polite"
-                    >
-                    </span>
+<section
+    id="coach-view"
+    class="page-view"
+>
 
-                </div>
 
-            </section>
+    <header class="page-header">
 
-        </section>
+        <div>
 
-    </main>
+            <p class="eyebrow">
+                FINANCIAL INTELLIGENCE
+            </p>
 
-</div>
+            <h2>
+                Smart Coach ✨
+            </h2>
+
+            <p class="page-subtitle">
+                Turn your financial activity into actionable insights.
+            </p>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- FINANCIAL HEALTH -->
+
+    <section class="health-card dashboard-card">
+
+        <p class="card-label">
+            YOUR FINANCIAL HEALTH
+        </p>
+
+        <h3 id="financial-health-score">
+            0
+        </h3>
+
+        <p id="financial-health-status">
+            Start adding transactions to receive your financial health score.
+        </p>
+
+    </section>
+
+
+
+    <!-- INSIGHTS -->
+
+    <section
+        id="coach-insights"
+        class="insight-grid"
+    >
+
+
+        <article class="dashboard-card coach-card">
+
+            <div class="coach-card-icon">
+                💡
+            </div>
+
+            <p class="card-label">
+                SPENDING INSIGHT
+            </p>
+
+            <h3>
+                Understand your spending
+            </h3>
+
+            <p>
+                FinFlow will identify meaningful changes in your spending.
+            </p>
+
+        </article>
+
+
+
+        <article class="dashboard-card coach-card">
+
+            <div class="coach-card-icon">
+                ⚠️
+            </div>
+
+            <p class="card-label">
+                BUDGET ALERT
+            </p>
+
+            <h3>
+                Stay within your limits
+            </h3>
+
+            <p>
+                You'll see alerts when a category approaches its budget.
+            </p>
+
+        </article>
+
+
+
+        <article class="dashboard-card coach-card">
+
+            <div class="coach-card-icon">
+                🔄
+            </div>
+
+            <p class="card-label">
+                RECURRING EXPENSE
+            </p>
+
+            <h3>
+                Detect repeated payments
+            </h3>
+
+            <p>
+                Identify subscriptions and regular bills.
+            </p>
+
+        </article>
+
+
+
+        <article class="dashboard-card coach-card">
+
+            <div class="coach-card-icon">
+                🎯
+            </div>
+
+            <p class="card-label">
+                SAVINGS OPPORTUNITY
+            </p>
+
+            <h3>
+                Find opportunities to save
+            </h3>
+
+            <p>
+                Identify areas where spending could potentially be reduced.
+            </p>
+
+        </article>
+
+
+
+        <article class="dashboard-card coach-card">
+
+            <div class="coach-card-icon">
+                🏆
+            </div>
+
+            <p class="card-label">
+                GOAL PROGRESS
+            </p>
+
+            <h3>
+                Track your progress
+            </h3>
+
+            <p>
+                Monitor your progress toward your savings goals.
+            </p>
+
+        </article>
+
+
+
+        <article class="dashboard-card coach-card">
+
+            <div class="coach-card-icon">
+                ✨
+            </div>
+
+            <p class="card-label">
+                SMART COACH
+            </p>
+
+            <h3>
+                Your financial journey starts here.
+            </h3>
+
+            <p>
+                Add transactions, create budgets and set savings goals
+                to unlock financial insights.
+            </p>
+
+            <button
+                class="primary-button"
+                id="coach-add-transaction-btn"
+                type="button"
+            >
+                Add Transaction
+            </button>
+
+        </article>
+
+
+    </section>
+
+</section>
+
+
+
+</main>
 
 
 
@@ -1615,7 +1272,6 @@
                 class="modal-close"
                 type="button"
                 data-close-modal="transaction-modal"
-                aria-label="Close transaction dialog"
             >
                 ×
             </button>
@@ -1623,7 +1279,11 @@
         </div>
 
 
+
         <form id="transaction-form">
+
+
+            <!-- TYPE -->
 
             <div class="form-group">
 
@@ -1654,6 +1314,9 @@
             </div>
 
 
+
+            <!-- AMOUNT -->
+
             <div class="form-group">
 
                 <label for="transaction-amount">
@@ -1672,6 +1335,9 @@
 
             </div>
 
+
+
+            <!-- CATEGORY -->
 
             <div class="form-group">
 
@@ -1730,6 +1396,9 @@
             </div>
 
 
+
+            <!-- DESCRIPTION -->
+
             <div class="form-group">
 
                 <label for="transaction-description">
@@ -1742,11 +1411,13 @@
                     name="description"
                     type="text"
                     placeholder="Example: Grocery shopping"
-                    maxlength="200"
                 >
 
             </div>
 
+
+
+            <!-- DATE -->
 
             <div class="form-group">
 
@@ -1763,6 +1434,9 @@
 
             </div>
 
+
+
+            <!-- ACTIONS -->
 
             <div class="modal-actions">
 
@@ -1783,143 +1457,8 @@
 
             </div>
 
+
         </form>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-     UPLOAD STATEMENT MODAL
-     The existing frontend JavaScript can still use the hidden
-     file input directly. This modal gives the new structure a
-     proper upload UI and can be wired by the updated script.js.
-========================================================= -->
-
-<div
-    id="upload-modal"
-    class="modal-overlay"
-    hidden
->
-
-    <div
-        class="modal-card upload-modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="upload-modal-title"
-    >
-
-        <div class="modal-header">
-
-            <div>
-
-                <p class="card-label">
-                    TRANSACTION IMPORT
-                </p>
-
-                <h3 id="upload-modal-title">
-                    Upload Bank Statement
-                </h3>
-
-            </div>
-
-            <button
-                class="modal-close"
-                type="button"
-                data-close-modal="upload-modal"
-                aria-label="Close upload dialog"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <div
-            id="statement-drop-zone"
-            class="upload-drop-zone"
-            tabindex="0"
-        >
-
-            <div class="upload-icon">
-                📄
-            </div>
-
-            <h4>
-                Drop your statement here
-            </h4>
-
-            <p>
-                or choose a CSV or PDF file from your computer
-            </p>
-
-            <button
-                id="choose-statement-btn"
-                class="secondary-button"
-                type="button"
-            >
-                Choose File
-            </button>
-
-            <p
-                id="selected-statement-name"
-                class="selected-file-name"
-            >
-            </p>
-
-        </div>
-
-
-        <div class="upload-format-note">
-
-            <strong>
-                Supported:
-            </strong>
-
-            <span>
-                CSV
-            </span>
-
-            <span>
-                PDF
-            </span>
-
-            <small>
-                Maximum file size: 10 MB
-            </small>
-
-        </div>
-
-
-        <div
-            id="upload-result"
-            class="upload-result"
-            hidden
-        >
-        </div>
-
-
-        <div class="modal-actions">
-
-            <button
-                class="secondary-button"
-                type="button"
-                data-close-modal="upload-modal"
-            >
-                Cancel
-            </button>
-
-            <button
-                id="import-statement-btn"
-                class="primary-button"
-                type="button"
-            >
-                Import Transactions
-            </button>
-
-        </div>
 
     </div>
 
@@ -1962,7 +1501,6 @@
                 class="modal-close"
                 type="button"
                 data-close-modal="budget-modal"
-                aria-label="Close budget dialog"
             >
                 ×
             </button>
@@ -1970,7 +1508,9 @@
         </div>
 
 
+
         <form id="budget-form">
+
 
             <div class="form-group">
 
@@ -2025,6 +1565,7 @@
             </div>
 
 
+
             <div class="form-group">
 
                 <label for="budget-amount">
@@ -2042,6 +1583,7 @@
                 >
 
             </div>
+
 
 
             <div class="modal-actions">
@@ -2062,6 +1604,7 @@
                 </button>
 
             </div>
+
 
         </form>
 
@@ -2106,7 +1649,6 @@
                 class="modal-close"
                 type="button"
                 data-close-modal="goal-modal"
-                aria-label="Close goal dialog"
             >
                 ×
             </button>
@@ -2114,11 +1656,15 @@
         </div>
 
 
+
         <form id="goal-form">
+
+
+            <!-- GOAL NAME -->
 
             <div class="form-group">
 
-                <label for="goal-name-select">
+                <label for="goal-name">
                     Goal
                 </label>
 
@@ -2160,6 +1706,7 @@
             </div>
 
 
+
             <div
                 class="form-group"
                 id="custom-goal-group"
@@ -2175,11 +1722,13 @@
                     name="name"
                     type="text"
                     placeholder="Example: New Camera"
-                    maxlength="100"
                 >
 
             </div>
 
+
+
+            <!-- TARGET -->
 
             <div class="form-group">
 
@@ -2200,6 +1749,9 @@
             </div>
 
 
+
+            <!-- CURRENT -->
+
             <div class="form-group">
 
                 <label for="goal-current">
@@ -2219,6 +1771,9 @@
             </div>
 
 
+
+            <!-- DEADLINE -->
+
             <div class="form-group">
 
                 <label for="goal-deadline">
@@ -2234,6 +1789,9 @@
 
             </div>
 
+
+
+            <!-- ACTIONS -->
 
             <div class="modal-actions">
 
@@ -2254,6 +1812,7 @@
 
             </div>
 
+
         </form>
 
     </div>
@@ -2263,29 +1822,14 @@
 
 
 <!-- =========================================================
-     GLOBAL TOAST / STATUS
-========================================================= -->
-
-<div
-    id="app-toast"
-    class="app-toast"
-    role="status"
-    aria-live="polite"
-    hidden
->
-</div>
-
-
-
-<!-- =========================================================
-     JAVASCRIPT
+     SCRIPT
 ========================================================= -->
 
 <script
     src="{{ url_for('static', filename='script.js') }}"
-    defer
 ></script>
 
 
 </body>
+
 </html>
