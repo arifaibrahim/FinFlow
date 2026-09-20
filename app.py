@@ -19,14 +19,14 @@ except ImportError:
     Groq = None
 
 try:
-    import fitz  # PyMuPDF
+    import fitz  
 except ImportError:
     fitz = None
 
-# =========================================================
-# FINFLOW — MONEY IN MOTION
-# Backend
-# =========================================================
+
+
+
+
 
 app = Flask(__name__)
 
@@ -37,7 +37,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# AI configuration. The API key is read only from the server environment.
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip()
 GROQ_WHISPER_MODEL = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo").strip()
@@ -48,9 +48,9 @@ ALLOWED_STATEMENT_EXTENSIONS = {"csv", "pdf"}
 
 
 
-# =========================================================
-# DATABASE
-# =========================================================
+
+
+
 
 def get_db_connection():
     connection = sqlite3.connect(DATABASE)
@@ -62,9 +62,9 @@ def init_database():
 
     connection = get_db_connection()
 
-    # -----------------------------
-    # Transactions
-    # -----------------------------
+    
+    
+    
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
@@ -77,9 +77,9 @@ def init_database():
         )
     """)
 
-    # -----------------------------
-    # Budgets
-    # -----------------------------
+    
+    
+    
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS budgets (
@@ -89,9 +89,9 @@ def init_database():
         )
     """)
 
-    # -----------------------------
-    # Goals
-    # -----------------------------
+    
+    
+    
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS goals (
@@ -107,9 +107,9 @@ def init_database():
     connection.close()
 
 
-# =========================================================
-# CONSTANTS
-# =========================================================
+
+
+
 
 CATEGORIES = [
     "Food",
@@ -219,9 +219,9 @@ CATEGORY_KEYWORDS = {
 }
 
 
-# =========================================================
-# HELPER FUNCTIONS
-# =========================================================
+
+
+
 
 def normalize_transaction_type(transaction_type):
 
@@ -460,7 +460,7 @@ def calculate_financial_summary():
     else:
         savings_rate = 0
 
-    # Current month
+    
     now = datetime.now()
 
     current_year = now.year
@@ -528,9 +528,9 @@ def calculate_financial_summary():
     }
 
 
-# =========================================================
-# SMART COACH
-# =========================================================
+
+
+
 
 def generate_insights():
 
@@ -538,9 +538,9 @@ def generate_insights():
 
     connection = get_db_connection()
 
-    # -----------------------------
-    # Budget insights
-    # -----------------------------
+    
+    
+    
 
     budgets = connection.execute("""
         SELECT category, amount
@@ -617,9 +617,9 @@ def generate_insights():
 
     connection.close()
 
-    # -----------------------------
-    # Savings insight
-    # -----------------------------
+    
+    
+    
 
     summary = calculate_financial_summary()
 
@@ -645,9 +645,9 @@ def generate_insights():
                     f"of your income."
             })
 
-    # -----------------------------
-    # Spending insight
-    # -----------------------------
+    
+    
+    
 
     connection = get_db_connection()
 
@@ -738,9 +738,9 @@ def calculate_financial_health():
     }
 
 
-# =========================================================
-# AI / DOCUMENT HELPERS
-# =========================================================
+
+
+
 
 def get_groq_client():
     """Return a Groq client when the SDK and API key are available."""
@@ -752,9 +752,9 @@ def get_groq_client():
 
 
 def ai_is_configured():
-    # Smart Coach is considered configured when a Groq API key is
-    # available. The Python SDK is preferred, but the REST fallback
-    # below keeps the chat working even if the SDK is unavailable.
+    
+    
+    
     return bool(GROQ_API_KEY)
 
 
@@ -793,7 +793,7 @@ def groq_chat(messages, temperature=0.2, max_tokens=1200, json_mode=False):
             "Groq AI is not configured. Set GROQ_API_KEY in .env."
         )
 
-    # Preferred path: official Groq Python SDK.
+    
     client = get_groq_client()
     if client is not None:
         kwargs = {
@@ -807,8 +807,8 @@ def groq_chat(messages, temperature=0.2, max_tokens=1200, json_mode=False):
         response = client.chat.completions.create(**kwargs)
         return response.choices[0].message.content or ""
 
-    # Fallback: direct Groq REST API. This avoids making the Smart
-    # Coach depend on the SDK being installed.
+    
+    
     payload = {
         "model": GROQ_MODEL,
         "messages": messages,
@@ -897,8 +897,8 @@ def format_ai_reply(text):
 
     cleaned = str(text).strip()
 
-    # Remove common markdown wrappers that look broken when the
-    # frontend renders the response as plain text.
+    
+    
     cleaned = re.sub(r"\*\*(.*?)\*\*", r"\1", cleaned)
     cleaned = re.sub(r"__(.*?)__", r"\1", cleaned)
     cleaned = re.sub(r"(?<!\*)\*(?!\s)(.*?)(?<!\s)\*", r"\1", cleaned)
@@ -913,17 +913,17 @@ def format_ai_reply(text):
                 lines.append("")
             continue
 
-        # Convert markdown headings to clean section labels.
+        
         line = re.sub(r"^#{1,6}\s*", "", line)
 
-        # Convert markdown bullets to a consistent FinFlow bullet.
+        
         line = re.sub(r"^[-*+]\s+", "• ", line)
 
         lines.append(line)
 
     cleaned = "\n".join(lines).strip()
 
-    # Avoid repeated blank lines.
+    
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
 
     return cleaned
@@ -993,7 +993,7 @@ def parse_statement_text_with_ai(text):
     if not text or not text.strip():
         return []
 
-    # Keep requests bounded while retaining enough statement context.
+    
     text = text[:50000]
     system = """You are FinFlow's bank-statement parser. Extract only transaction rows from the supplied bank statement text.
 Return JSON only in this exact shape: {"transactions":[{"date":"YYYY-MM-DD","description":"...","amount":123.45,"type":"income|expense"}]}
@@ -1123,7 +1123,7 @@ def parse_csv_dataframe(dataframe):
                 raw_amount = row.get(amount_col)
                 amount = abs(float(raw_amount))
                 if transaction_type is None:
-                    # Negative values are treated as expenses; positive as income.
+                    
                     transaction_type = "expense" if float(raw_amount) < 0 else "income"
             else:
                 debit = row.get(debit_col) if debit_col else None
@@ -1149,9 +1149,9 @@ def parse_csv_dataframe(dataframe):
     return result
 
 
-# =========================================================
-# AI ENDPOINTS
-# =========================================================
+
+
+
 
 @app.route("/api/ai/status")
 def ai_status():
@@ -1231,7 +1231,7 @@ Financial context JSON follows:\n""" + json.dumps(context, ensure_ascii=False)
         return jsonify({"success": False, "message": f"AI request failed: {exc}"}), 502
 
 
-# Backward-compatible aliases used by earlier FinFlow frontend versions.
+
 @app.route("/api/ai-status")
 def ai_status_legacy():
     return ai_status()
@@ -1299,9 +1299,9 @@ def ai_transcribe():
         return jsonify({"success": False, "message": f"Voice transcription failed: {exc}"}), 502
 
 
-# =========================================================
-# HOME
-# =========================================================
+
+
+
 
 @app.route("/")
 def home():
@@ -1318,9 +1318,9 @@ def api_test():
     })
 
 
-# =========================================================
-# TRANSACTIONS
-# =========================================================
+
+
+
 
 @app.route(
     "/api/transactions",
@@ -1571,9 +1571,9 @@ def delete_transaction(transaction_id):
     })
 
 
-# =========================================================
-# CATEGORIZATION
-# =========================================================
+
+
+
 
 @app.route(
     "/api/categorize",
@@ -1604,9 +1604,9 @@ def get_categories():
     return jsonify(CATEGORIES)
 
 
-# =========================================================
-# FINANCIAL SUMMARY
-# =========================================================
+
+
+
 
 @app.route("/api/summary")
 def get_summary():
@@ -1616,9 +1616,9 @@ def get_summary():
     )
 
 
-# =========================================================
-# DASHBOARD
-# =========================================================
+
+
+
 
 @app.route("/api/dashboard")
 def dashboard():
@@ -1651,9 +1651,9 @@ def dashboard():
     })
 
 
-# =========================================================
-# SPENDING BY CATEGORY
-# =========================================================
+
+
+
 
 @app.route("/api/spending-by-category")
 def spending_by_category():
@@ -1746,9 +1746,9 @@ def spending_by_category():
     ])
 
 
-# =========================================================
-# MONTHLY SUMMARY
-# =========================================================
+
+
+
 
 @app.route("/api/monthly-summary")
 def monthly_summary():
@@ -1818,9 +1818,9 @@ def monthly_summary():
             )
         }
 
-    # ---------------------------------
-    # Always return all 12 months
-    # ---------------------------------
+    
+    
+    
 
     result = []
 
@@ -1861,9 +1861,9 @@ def monthly_summary():
     return jsonify(result)
 
 
-# =========================================================
-# MONTHLY COMPARISON
-# =========================================================
+
+
+
 
 @app.route("/api/monthly-comparison")
 def monthly_comparison():
@@ -1925,9 +1925,9 @@ def monthly_comparison():
     })
 
 
-# =========================================================
-# BUDGETS
-# =========================================================
+
+
+
 
 @app.route(
     "/api/budgets",
@@ -2049,9 +2049,9 @@ def delete_budget(category):
     })
 
 
-# =========================================================
-# BUDGET PROGRESS
-# =========================================================
+
+
+
 
 @app.route("/api/budget-progress")
 def budget_progress():
@@ -2159,9 +2159,9 @@ def budget_progress():
     return jsonify(result)
 
 
-# =========================================================
-# GOALS
-# =========================================================
+
+
+
 
 @app.route(
     "/api/goals",
@@ -2418,9 +2418,9 @@ def delete_goal(goal_id):
     })
 
 
-# =========================================================
-# GOAL PROGRESS
-# =========================================================
+
+
+
 
 @app.route("/api/goal-progress")
 def goal_progress():
@@ -2501,9 +2501,9 @@ def goal_progress():
     return jsonify(result)
 
 
-# =========================================================
-# RECURRING EXPENSE DETECTION
-# =========================================================
+
+
+
 
 @app.route("/api/recurring")
 def detect_recurring():
@@ -2515,9 +2515,9 @@ def detect_recurring():
     })
 
 
-# =========================================================
-# FINANCIAL HEALTH
-# =========================================================
+
+
+
 
 @app.route("/api/financial-health")
 def financial_health():
@@ -2527,9 +2527,9 @@ def financial_health():
     )
 
 
-# =========================================================
-# CSV BANK STATEMENT UPLOAD
-# =========================================================
+
+
+
 
 @app.route(
     "/api/upload-statement",
@@ -2564,7 +2564,7 @@ def upload_statement():
             })
             return jsonify(stats)
 
-        # PDF: extract text, then use AI to identify transaction rows.
+        
         if not ai_is_configured():
             return jsonify({
                 "success": False,
@@ -2599,7 +2599,7 @@ def upload_statement():
     except Exception as exc:
         return jsonify({"success": False, "message": f"Could not process statement: {exc}"}), 400
     finally:
-        # Keep uploads out of the long-term project folder after processing.
+        
         try:
             if os.path.exists(filepath):
                 os.remove(filepath)
@@ -2607,9 +2607,9 @@ def upload_statement():
             pass
 
 
-# =========================================================
-# RESET DATABASE
-# =========================================================
+
+
+
 
 @app.route(
     "/api/reset-database",
@@ -2643,9 +2643,9 @@ def reset_database():
     })
 
 
-# =========================================================
-# APPLICATION START
-# =========================================================
+
+
+
 
 if __name__ == "__main__":
 

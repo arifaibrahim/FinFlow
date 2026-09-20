@@ -1,13 +1,3 @@
-/* =========================================================
-   FINFLOW - MAIN JAVASCRIPT
-   Money in Motion
-========================================================= */
-
-
-/* =========================================================
-   GLOBAL HELPERS
-========================================================= */
-
 function escapeHTML(value) {
 
     const div = document.createElement("div");
@@ -144,10 +134,6 @@ async function fetchJSON(
 }
 
 
-/* =========================================================
-   PAGE NAVIGATION
-========================================================= */
-
 const navItems =
     document.querySelectorAll(
         ".nav-item"
@@ -237,10 +223,6 @@ navItems.forEach(
 );
 
 
-/* =========================================================
-   VIEW INSIGHTS
-========================================================= */
-
 const viewInsightsButton =
     document.getElementById(
         "view-insights-btn"
@@ -262,10 +244,6 @@ if (viewInsightsButton) {
 
 }
 
-
-/* =========================================================
-   MODAL FUNCTIONS
-========================================================= */
 
 function openModal(modalId) {
 
@@ -371,10 +349,6 @@ document.addEventListener(
     }
 );
 
-
-/* =========================================================
-   ADD TRANSACTION
-========================================================= */
 
 const addTransactionButton =
     document.getElementById(
@@ -543,10 +517,6 @@ if (transactionForm) {
 
 }
 
-
-/* =========================================================
-   TRANSACTIONS
-========================================================= */
 
 let allTransactions = [];
 
@@ -810,10 +780,6 @@ document
     );
 
 
-/* =========================================================
-   DASHBOARD
-========================================================= */
-
 async function loadDashboard() {
 
     try {
@@ -994,10 +960,6 @@ function renderRecentTransactions(
 
 }
 
-
-/* =========================================================
-   CHARTS
-========================================================= */
 
 let incomeExpenseChart = null;
 
@@ -1420,10 +1382,6 @@ document
     );
 
 
-/* =========================================================
-   BUDGET
-========================================================= */
-
 async function loadBudgets() {
 
     try {
@@ -1754,10 +1712,6 @@ if (budgetForm) {
 
 }
 
-
-/* =========================================================
-   GOALS
-========================================================= */
 
 async function loadGoals() {
 
@@ -2092,10 +2046,6 @@ if (goalForm) {
 }
 
 
-/* =========================================================
-   RECURRING EXPENSES
-========================================================= */
-
 async function loadRecurringExpenses() {
 
     try {
@@ -2215,10 +2165,6 @@ async function loadRecurringExpenses() {
 
 }
 
-
-/* =========================================================
-   UPLOAD STATEMENT
-========================================================= */
 
 function setUploadStatus(
     title,
@@ -2483,10 +2429,6 @@ if (statementFile) {
 }
 
 
-/* =========================================================
-   AI SMART COACH
-========================================================= */
-
 let aiConfigured =
     false;
 
@@ -2496,10 +2438,6 @@ let speechRecognition =
 let isListening =
     false;
 
-
-/* =========================================================
-   STRUCTURED AI RESPONSE FORMATTER
-========================================================= */
 
 function formatAIResponse(
     message
@@ -2767,10 +2705,6 @@ function formatAIResponse(
 }
 
 
-/* =========================================================
-   ADD AI MESSAGE
-========================================================= */
-
 function addAIMessage(
     message,
     role = "assistant"
@@ -2860,10 +2794,6 @@ function addAIMessage(
 
 }
 
-
-/* =========================================================
-   AI STATUS
-========================================================= */
 
 function setAIStatus(
     text,
@@ -2959,10 +2889,6 @@ async function checkAIStatus() {
 
 }
 
-
-/* =========================================================
-   AI CHAT
-========================================================= */
 
 async function sendAIMessage(
     message
@@ -3102,10 +3028,6 @@ async function sendAIMessage(
 
 }
 
-
-/* =========================================================
-   VOICE INPUT
-========================================================= */
 
 function setupVoiceInput() {
 
@@ -3268,10 +3190,6 @@ function setupVoiceInput() {
 }
 
 
-/* =========================================================
-   AI CHAT SETUP
-========================================================= */
-
 function setupAIChat() {
 
     const form =
@@ -3310,10 +3228,6 @@ function setupAIChat() {
 
 }
 
-
-/* =========================================================
-   SMART COACH
-========================================================= */
 
 async function loadSmartCoach() {
 
@@ -3370,10 +3284,6 @@ async function loadSmartCoach() {
 
 }
 
-
-/* =========================================================
-   PROFILE + BOTTOM NAVIGATION
-========================================================= */
 
 function setupProfileAndBottomNavigation() {
 
@@ -3544,17 +3454,6 @@ function setupProfileAndBottomNavigation() {
         document.getElementById(
             "bottom-profile-btn"
         );
-
-
-    /*
-        The profile dropdown in index.html
-        already has its own click handlers.
-
-        We intentionally do not add another
-        toggle handler here because two toggle
-        handlers would make the menu open and
-        immediately close.
-    */
 
 
     if (profileTrigger) {
@@ -3754,148 +3653,13 @@ function setupProfileAndBottomNavigation() {
 
                 } else {
 
-                    const modal =
-                        document.getElementById(
-                            "transaction-modal"
-                        );
-
-
-                    if (modal) {
-
-                        modal.hidden =
-                            false;
-
-                    }
-
-                }
-
-            }
-        );
-
-    }
-
-
-    if (historyButton) {
-
-        historyButton.addEventListener(
-            "click",
-            () => {
-
-                if (
-                    typeof showPage ===
-                    "function"
-                ) {
-
-                    showPage(
-                        "transactions"
+                    console.error(
+                        "openModal is not available."
                     );
 
                 }
 
-
-                setBottomActive(
-                    "bottom-history-btn"
-                );
-
-
-                window.scrollTo(
-                    {
-                        top: 0,
-                        behavior:
-                            "smooth"
-                    }
-                );
-
             }
         );
 
     }
-
-
-    if (profileButton) {
-
-        profileButton.addEventListener(
-            "click",
-            () => {
-
-                setBottomActive(
-                    "bottom-profile-btn"
-                );
-
-
-                if (profileTrigger) {
-
-                    profileTrigger.click();
-
-                }
-
-            }
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   REFRESH EVERYTHING
-========================================================= */
-
-async function refreshAll() {
-
-    await loadTransactions();
-
-    await loadDashboard();
-
-    await loadBudgets();
-
-    await loadGoals();
-
-    await loadSmartCoach();
-
-    await loadCharts();
-
-}
-
-
-/* =========================================================
-   INITIALIZATION
-========================================================= */
-
-async function initializeApp() {
-
-    setupProfileAndBottomNavigation();
-
-    populateYearSelectors();
-
-    setupAIChat();
-
-    await checkAIStatus();
-
-    setInitialMonthSelectors();
-
-
-    const transactionDate =
-        document.getElementById(
-            "transaction-date"
-        );
-
-
-    if (transactionDate) {
-
-        transactionDate.value =
-            getTodayString();
-
-    }
-
-
-    await refreshAll();
-
-}
-
-
-/* =========================================================
-   START APPLICATION
-========================================================= */
-
-initializeApp();
