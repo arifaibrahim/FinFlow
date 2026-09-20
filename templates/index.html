@@ -22,7 +22,7 @@
 </head>
 
 
-<body>
+<body data-ai-enabled="true">
 
 
 <!-- =========================================================
@@ -34,7 +34,11 @@
     <div class="brand">
 
         <div class="brand-logo">
-            FF
+            <img
+                src="{{ url_for('static', filename='images/finflow-logo.png') }}"
+                alt="FinFlow logo"
+                onerror="this.style.display='none'; this.parentElement.textContent='FF';"
+            >
         </div>
 
         <div class="brand-text">
@@ -576,7 +580,7 @@
 
 
 
-        <!-- SMART COACH PREVIEW -->
+        <!-- RECURRING EXPENSES -->
 
         <article class="dashboard-card">
 
@@ -585,47 +589,50 @@
                 <div>
 
                     <p class="card-label">
-                        SMART COACH
+                        RECURRING EXPENSES
                     </p>
 
                     <h3>
-                        Financial Insights
+                        Regular Payments
                     </h3>
 
                 </div>
 
                 <span>
-                    ✨
+                    🔄
                 </span>
 
             </div>
 
-
             <div
-                id="home-insights"
+                id="home-recurring-expenses"
                 class="insight-list"
             >
 
                 <div class="insight-item">
 
                     <span>
-                        💡
+                        🔄
                     </span>
 
                     <div>
 
                         <strong>
-                            Spending Insight
+                            No recurring expenses detected
                         </strong>
 
                         <p>
-                            Your financial insights will appear here.
+                            FinFlow will identify repeated payments automatically.
                         </p>
 
                     </div>
 
                 </div>
 
+            </div>
+
+            <div class="recurring-summary" id="home-recurring-summary">
+                0 recurring payments · ₹0/month
             </div>
 
         </article>
@@ -680,9 +687,13 @@
             <input
                 type="file"
                 id="statement-file"
-                accept=".csv"
+                accept=".csv,.pdf"
                 hidden
             >
+
+            <span class="upload-file-hint" id="upload-file-hint">
+                CSV or PDF
+            </span>
 
 
             <button
@@ -801,6 +812,45 @@
             </tbody>
 
         </table>
+
+    </section>
+
+
+
+    <section class="dashboard-card upload-status-card" id="upload-status-card" hidden>
+
+        <div class="card-header">
+            <div>
+                <p class="card-label">
+                    STATEMENT IMPORT
+                </p>
+                <h3 id="upload-status-title">
+                    Import Status
+                </h3>
+            </div>
+            <span id="upload-status-icon">
+                ✓
+            </span>
+        </div>
+
+        <p id="upload-status-message">
+            Your statement import status will appear here.
+        </p>
+
+        <div class="upload-stat-grid">
+            <div>
+                <strong id="upload-imported-count">0</strong>
+                <span>Imported</span>
+            </div>
+            <div>
+                <strong id="upload-categorized-count">0</strong>
+                <span>Categorized</span>
+            </div>
+            <div>
+                <strong id="upload-review-count">0</strong>
+                <span>Need Review</span>
+            </div>
+        </div>
 
     </section>
 
@@ -1226,6 +1276,83 @@
 
         </article>
 
+
+    </section>
+
+
+
+    <!-- AI FINANCIAL COACH -->
+
+    <section class="dashboard-card ai-coach-panel" id="ai-coach-panel">
+
+        <div class="card-header">
+
+            <div>
+
+                <p class="card-label">
+                    AI FINANCIAL COACH
+                </p>
+
+                <h3>
+                    Ask FinFlow
+                </h3>
+
+            </div>
+
+            <span id="ai-status-badge">
+                ● AI
+            </span>
+
+        </div>
+
+        <p class="ai-coach-description">
+            Ask finance-related questions about your spending, budgets, savings, goals and transactions.
+        </p>
+
+        <div
+            id="ai-chat-messages"
+            class="ai-chat-messages"
+            aria-live="polite"
+        >
+            <div class="ai-message assistant-message">
+                <strong>FinFlow AI</strong>
+                <p>
+                    Hi! Ask me something about your finances. For example: “How much did I spend on food?”
+                </p>
+            </div>
+        </div>
+
+        <form id="ai-chat-form" class="ai-chat-form">
+
+            <input
+                id="ai-chat-input"
+                type="text"
+                placeholder="Ask FinFlow about your finances..."
+                autocomplete="off"
+                maxlength="2000"
+            >
+
+            <button
+                type="button"
+                class="secondary-button ai-voice-button"
+                id="ai-voice-btn"
+                title="Use voice input"
+                aria-label="Use voice input"
+            >
+                🎤
+            </button>
+
+            <button
+                type="submit"
+                class="primary-button"
+                id="ai-send-btn"
+            >
+                Ask →
+            </button>
+
+        </form>
+
+        <p id="ai-chat-status" class="ai-chat-status" aria-live="polite"></p>
 
     </section>
 

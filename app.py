@@ -3,6 +3,25 @@ import sqlite3
 import pandas as pd
 import os
 from datetime import datetime, date
+import json
+import re
+from collections import defaultdict
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
+    from groq import Groq
+except ImportError:
+    Groq = None
+
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    fitz = None
 
 # =========================================================
 # FINFLOW — MONEY IN MOTION
@@ -17,6 +36,16 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# AI configuration. The API key is read only from the server environment.
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip()
+GROQ_WHISPER_MODEL = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo").strip()
+MAX_UPLOAD_MB = 25
+app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
+
+ALLOWED_STATEMENT_EXTENSIONS = {"csv", "pdf"}
+
 
 
 # =========================================================
@@ -707,6 +736,441 @@ def calculate_financial_health():
         "score": score,
         "status": status
     }
+
+
+# =========================================================
+# AI / DOCUMENT HELPERS
+# =========================================================
+
+def get_groq_client():
+    """Return a Groq client when the SDK and API key are available."""
+    if Groq is None:
+        return None
+    if not GROQ_API_KEY:
+        return None
+    return Groq(api_key=GROQ_API_KEY)
+
+
+def ai_is_configured():
+    return bool(Groq is not None and GROQ_API_KEY)
+
+
+def extract_json_from_text(text):
+    """Safely extract a JSON object/array from an AI response."""
+    if not text:
+        return None
+    text = str(text).strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    fenced = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.I | re.S)
+    if fenced:
+        try:
+            return json.loads(fenced.group(1).strip())
+        except json.JSONDecodeError:
+            pass
+    starts = [i for i in (text.find("{"), text.find("[")) if i >= 0]
+    if not starts:
+        return None
+    start = min(starts)
+    for end in range(len(text), start, -1):
+        candidate = text[start:end].strip()
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+    return None
+
+
+def groq_chat(messages, temperature=0.2, max_tokens=1200, json_mode=False):
+    """Call Groq and return plain assistant text."""
+    client = get_groq_client()
+    if client is None:
+        raise RuntimeError(
+            "Groq AI is not configured. Install 'groq' and set GROQ_API_KEY in .env."
+        )
+    kwargs = {
+        "model": GROQ_MODEL,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
+    response = client.chat.completions.create(**kwargs)
+    return response.choices[0].message.content or ""
+
+
+def get_recurring_expenses_data():
+    """Detect repeated expense descriptions and amounts."""
+    connection = get_db_connection()
+    rows = connection.execute("""
+        SELECT
+            LOWER(TRIM(description)) AS normalized_description,
+            MIN(TRIM(description)) AS description,
+            ROUND(amount, 2) AS amount,
+            COUNT(*) AS occurrences,
+            MIN(date) AS first_date,
+            MAX(date) AS last_date
+        FROM transactions
+        WHERE type = 'expense'
+          AND description IS NOT NULL
+          AND TRIM(description) != ''
+        GROUP BY LOWER(TRIM(description)), ROUND(amount, 2)
+        HAVING COUNT(*) >= 3
+        ORDER BY occurrences DESC, last_date DESC
+    """).fetchall()
+    connection.close()
+
+    result = []
+    for row in rows:
+        result.append({
+            "description": row["description"],
+            "amount": round(float(row["amount"] or 0), 2),
+            "occurrences": int(row["occurrences"] or 0),
+            "first_date": row["first_date"],
+            "last_date": row["last_date"],
+            "estimated_monthly": round(float(row["amount"] or 0), 2),
+        })
+    return result
+
+
+def get_ai_financial_context(limit=40):
+    """Build compact structured financial context for Smart Coach."""
+    summary = calculate_financial_summary()
+    connection = get_db_connection()
+
+    category_rows = connection.execute("""
+        SELECT category, ROUND(SUM(amount), 2) AS total
+        FROM transactions
+        WHERE type = 'expense'
+        GROUP BY category
+        ORDER BY total DESC
+    """).fetchall()
+
+    recent_rows = connection.execute("""
+        SELECT id, type, amount, category, description, date
+        FROM transactions
+        ORDER BY date DESC, id DESC
+        LIMIT ?
+    """, (limit,)).fetchall()
+
+    budget_rows = connection.execute("""
+        SELECT category, amount
+        FROM budgets
+        ORDER BY category
+    """).fetchall()
+
+    goal_rows = connection.execute("""
+        SELECT id, name, target, current, deadline
+        FROM goals
+        ORDER BY id DESC
+    """).fetchall()
+    connection.close()
+
+    return {
+        "summary": summary,
+        "spending_by_category": [
+            {"category": r["category"], "amount": round(float(r["total"] or 0), 2)}
+            for r in category_rows
+        ],
+        "budgets": [
+            {"category": r["category"], "amount": round(float(r["amount"] or 0), 2)}
+            for r in budget_rows
+        ],
+        "goals": [dict(r) for r in goal_rows],
+        "recurring_expenses": get_recurring_expenses_data(),
+        "recent_transactions": [
+            {
+                "id": r["id"],
+                "type": r["type"],
+                "amount": round(float(r["amount"] or 0), 2),
+                "category": r["category"],
+                "description": r["description"] or "",
+                "date": r["date"],
+            }
+            for r in recent_rows
+        ],
+    }
+
+
+def parse_statement_text_with_ai(text):
+    """Turn extracted PDF text into normalized transactions using Groq."""
+    if not text or not text.strip():
+        return []
+
+    # Keep requests bounded while retaining enough statement context.
+    text = text[:50000]
+    system = """You are FinFlow's bank-statement parser. Extract only transaction rows from the supplied bank statement text.
+Return JSON only in this exact shape: {"transactions":[{"date":"YYYY-MM-DD","description":"...","amount":123.45,"type":"income|expense"}]}
+Rules: use positive numeric amounts; infer debit/credit from the statement wording or signs; ignore balances, headers, footers, page numbers and totals; never invent missing transactions; if a date is ambiguous, omit that row; normalize dates to YYYY-MM-DD where possible."""
+    user = "Statement text:\n\n" + text
+    raw = groq_chat(
+        [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        temperature=0,
+        max_tokens=6000,
+        json_mode=True,
+    )
+    parsed = extract_json_from_text(raw) or {}
+    transactions = parsed.get("transactions", []) if isinstance(parsed, dict) else []
+    if not isinstance(transactions, list):
+        return []
+    return transactions
+
+
+def normalize_ai_transactions(items):
+    normalized = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        transaction_type = normalize_transaction_type(item.get("type"))
+        transaction_date = normalize_date(item.get("date"))
+        description = str(item.get("description") or "").strip()
+        try:
+            amount = abs(float(item.get("amount")))
+        except (TypeError, ValueError):
+            continue
+        if not transaction_type or not transaction_date or amount <= 0 or not description:
+            continue
+        normalized.append({
+            "type": transaction_type,
+            "amount": round(amount, 2),
+            "description": description,
+            "date": transaction_date,
+            "category": categorize_transaction(description),
+        })
+    return normalized
+
+
+def insert_transactions(items):
+    """Insert normalized transaction dictionaries and return import statistics."""
+    connection = get_db_connection()
+    imported = categorized = needs_review = skipped = 0
+    for item in items:
+        try:
+            category = item.get("category") or categorize_transaction(item.get("description", ""))
+            if category not in CATEGORIES:
+                category = "Other"
+            if category == "Other":
+                needs_review += 1
+            else:
+                categorized += 1
+            connection.execute("""
+                INSERT INTO transactions (type, amount, category, description, date)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                item["type"], item["amount"], category,
+                item.get("description", ""), item["date"]
+            ))
+            imported += 1
+        except Exception:
+            skipped += 1
+    connection.commit()
+    connection.close()
+    return {
+        "imported": imported,
+        "categorized": categorized,
+        "needs_review": needs_review,
+        "skipped": skipped,
+    }
+
+
+def extract_pdf_text(filepath):
+    """Extract text from a text-based PDF. Scanned/image-only PDFs need OCR."""
+    if fitz is None:
+        raise RuntimeError("PDF support requires PyMuPDF. Run: pip install pymupdf")
+    document = fitz.open(filepath)
+    pages = []
+    try:
+        for page in document:
+            pages.append(page.get_text("text"))
+    finally:
+        document.close()
+    return "\n".join(pages).strip()
+
+
+def parse_csv_dataframe(dataframe):
+    """Normalize common bank CSV column names into FinFlow transactions."""
+    normalized_columns = {str(c).strip().lower(): c for c in dataframe.columns}
+
+    def find_column(*names):
+        for name in names:
+            if name in normalized_columns:
+                return normalized_columns[name]
+        return None
+
+    date_col = find_column("date", "transaction date", "txn date", "value date")
+    desc_col = find_column("description", "details", "narration", "remarks", "merchant", "transaction description")
+    type_col = find_column("type", "transaction type", "dr/cr", "debit/credit")
+    amount_col = find_column("amount", "transaction amount", "value")
+    debit_col = find_column("debit", "withdrawal", "debit amount")
+    credit_col = find_column("credit", "deposit", "credit amount")
+
+    if not date_col or not desc_col:
+        raise ValueError("CSV must contain a Date and Description/Details column.")
+    if not amount_col and not debit_col and not credit_col:
+        raise ValueError("CSV must contain Amount, Debit, or Credit columns.")
+
+    result = []
+    for _, row in dataframe.iterrows():
+        try:
+            description = str(row.get(desc_col, "") or "").strip()
+            transaction_date = normalize_date(row.get(date_col))
+            if not description or not transaction_date:
+                continue
+
+            transaction_type = normalize_transaction_type(row.get(type_col)) if type_col else None
+            amount = None
+
+            if amount_col:
+                raw_amount = row.get(amount_col)
+                amount = abs(float(raw_amount))
+                if transaction_type is None:
+                    # Negative values are treated as expenses; positive as income.
+                    transaction_type = "expense" if float(raw_amount) < 0 else "income"
+            else:
+                debit = row.get(debit_col) if debit_col else None
+                credit = row.get(credit_col) if credit_col else None
+                debit_value = 0 if pd.isna(debit) else abs(float(str(debit).replace(",", "")))
+                credit_value = 0 if pd.isna(credit) else abs(float(str(credit).replace(",", "")))
+                if debit_value > 0:
+                    amount, transaction_type = debit_value, "expense"
+                elif credit_value > 0:
+                    amount, transaction_type = credit_value, "income"
+
+            if amount is None or amount <= 0 or not transaction_type:
+                continue
+            result.append({
+                "type": transaction_type,
+                "amount": round(amount, 2),
+                "description": description,
+                "date": transaction_date,
+                "category": categorize_transaction(description),
+            })
+        except Exception:
+            continue
+    return result
+
+
+# =========================================================
+# AI ENDPOINTS
+# =========================================================
+
+@app.route("/api/ai/status")
+def ai_status():
+    return jsonify({
+        "configured": ai_is_configured(),
+        "model": GROQ_MODEL if ai_is_configured() else None,
+        "provider": "Groq" if ai_is_configured() else None,
+    })
+
+
+@app.route("/api/ai/test", methods=["GET", "POST"])
+def ai_test():
+    if not ai_is_configured():
+        return jsonify({
+            "success": False,
+            "message": "Groq is not configured. Check GROQ_API_KEY in .env and install groq/python-dotenv."
+        }), 503
+    try:
+        reply = groq_chat([
+            {"role": "system", "content": "You are FinFlow's test assistant. Reply in one short sentence."},
+            {"role": "user", "content": "Confirm that the FinFlow AI connection is working."},
+        ], temperature=0, max_tokens=80)
+        return jsonify({"success": True, "message": reply})
+    except Exception as exc:
+        return jsonify({"success": False, "message": f"Groq request failed: {exc}"}), 502
+
+
+@app.route("/api/ai/chat", methods=["POST"])
+def ai_chat():
+    data = request.get_json(silent=True) or {}
+    question = str(data.get("message") or data.get("question") or "").strip()
+    if not question:
+        return jsonify({"success": False, "message": "Please enter a finance question."}), 400
+    if len(question) > 2000:
+        return jsonify({"success": False, "message": "Question is too long."}), 400
+    if not ai_is_configured():
+        return jsonify({"success": False, "message": "Groq AI is not configured."}), 503
+
+    context = get_ai_financial_context()
+    system = """You are FinFlow Smart Coach, a personal finance assistant.
+Answer only finance, budgeting, spending, saving, transaction, goal, or FinFlow-app questions.
+If a request is unrelated, politely say you can help only with finance and FinFlow.
+Use only the supplied financial context for personal financial facts. Never invent balances, transactions, budgets, goals, or spending numbers.
+Give concise, practical answers. When making calculations, use the supplied numbers and show the calculation when useful.
+Do not claim to be a licensed financial adviser. For investments, taxes, loans, or other regulated matters, give general educational information and note when professional advice may be appropriate.
+Financial context JSON follows:\n""" + json.dumps(context, ensure_ascii=False)
+
+    try:
+        reply = groq_chat([
+            {"role": "system", "content": system},
+            {"role": "user", "content": question},
+        ], temperature=0.2, max_tokens=900)
+        return jsonify({"success": True, "reply": reply, "context_used": True})
+    except Exception as exc:
+        return jsonify({"success": False, "message": f"AI request failed: {exc}"}), 502
+
+
+@app.route("/api/ai/categorize", methods=["POST"])
+def ai_categorize():
+    data = request.get_json(silent=True) or {}
+    descriptions = data.get("descriptions", [])
+    if isinstance(descriptions, str):
+        descriptions = [descriptions]
+    descriptions = [str(x).strip() for x in descriptions if str(x).strip()][:100]
+    if not descriptions:
+        return jsonify({"success": False, "message": "No descriptions supplied."}), 400
+    if not ai_is_configured():
+        return jsonify({"success": False, "message": "Groq AI is not configured."}), 503
+
+    prompt = "Return JSON only as {\"categories\":[{\"description\":\"...\",\"category\":\"Food|Transport|Shopping|Education|Bills|Entertainment|Health|Salary|Other\"}]} . Categorize each description conservatively. Descriptions:\n" + json.dumps(descriptions, ensure_ascii=False)
+    try:
+        raw = groq_chat([
+            {"role": "system", "content": "You classify bank transaction descriptions into exactly one FinFlow category."},
+            {"role": "user", "content": prompt},
+        ], temperature=0, max_tokens=1600, json_mode=True)
+        parsed = extract_json_from_text(raw) or {}
+        categories = parsed.get("categories", []) if isinstance(parsed, dict) else []
+        if not isinstance(categories, list):
+            categories = []
+        cleaned = []
+        for item in categories:
+            if not isinstance(item, dict):
+                continue
+            category = item.get("category", "Other")
+            if category not in CATEGORIES:
+                category = "Other"
+            cleaned.append({"description": str(item.get("description", "")), "category": category})
+        return jsonify({"success": True, "categories": cleaned})
+    except Exception as exc:
+        return jsonify({"success": False, "message": f"AI categorization failed: {exc}"}), 502
+
+
+@app.route("/api/ai/transcribe", methods=["POST"])
+def ai_transcribe():
+    if not ai_is_configured():
+        return jsonify({"success": False, "message": "Groq AI is not configured."}), 503
+    if "file" not in request.files:
+        return jsonify({"success": False, "message": "No audio file uploaded."}), 400
+    audio = request.files["file"]
+    if not audio.filename:
+        return jsonify({"success": False, "message": "No audio file selected."}), 400
+    client = get_groq_client()
+    try:
+        result = client.audio.transcriptions.create(
+            file=(os.path.basename(audio.filename), audio.read()),
+            model=GROQ_WHISPER_MODEL,
+            response_format="json",
+            temperature=0,
+        )
+        return jsonify({"success": True, "text": result.text})
+    except Exception as exc:
+        return jsonify({"success": False, "message": f"Voice transcription failed: {exc}"}), 502
 
 
 # =========================================================
@@ -1917,49 +2381,12 @@ def goal_progress():
 
 @app.route("/api/recurring")
 def detect_recurring():
-
-    connection = get_db_connection()
-
-    transactions = connection.execute("""
-        SELECT
-            description,
-            ROUND(amount, 2) AS amount,
-            COUNT(*) AS occurrences
-
-        FROM transactions
-
-        WHERE type = 'expense'
-
-        AND description IS NOT NULL
-
-        AND TRIM(description) != ''
-
-        GROUP BY
-            LOWER(description),
-            ROUND(amount, 2)
-
-        HAVING COUNT(*) >= 3
-
-        ORDER BY occurrences DESC
-    """).fetchall()
-
-    connection.close()
-
-    return jsonify([
-
-        {
-            "description":
-                row["description"],
-
-            "amount":
-                row["amount"],
-
-            "occurrences":
-                row["occurrences"]
-        }
-
-        for row in transactions
-    ])
+    recurring = get_recurring_expenses_data()
+    return jsonify({
+        "items": recurring,
+        "count": len(recurring),
+        "monthly_total": round(sum(item["estimated_monthly"] for item in recurring), 2),
+    })
 
 
 # =========================================================
@@ -1983,184 +2410,75 @@ def financial_health():
     methods=["POST"]
 )
 def upload_statement():
-
     if "file" not in request.files:
-
-        return jsonify({
-            "success": False,
-            "message":
-                "No file uploaded"
-        }), 400
+        return jsonify({"success": False, "message": "No file uploaded."}), 400
 
     file = request.files["file"]
+    if not file.filename:
+        return jsonify({"success": False, "message": "No file selected."}), 400
 
-    if file.filename == "":
+    extension = os.path.splitext(file.filename)[1].lower().lstrip(".")
+    if extension not in ALLOWED_STATEMENT_EXTENSIONS:
+        return jsonify({"success": False, "message": "Only CSV and PDF bank statements are supported."}), 400
 
-        return jsonify({
-            "success": False,
-            "message":
-                "No file selected"
-        }), 400
-
-    if not file.filename.lower().endswith(".csv"):
-
-        return jsonify({
-            "success": False,
-            "message":
-                "Only CSV files are supported"
-        }), 400
-
-    safe_filename = os.path.basename(
-        file.filename
-    )
-
-    filepath = os.path.join(
-        app.config["UPLOAD_FOLDER"],
-        safe_filename
-    )
-
+    safe_filename = os.path.basename(file.filename)
+    timestamped_name = f"{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}_{safe_filename}"
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], timestamped_name)
     file.save(filepath)
 
     try:
+        if extension == "csv":
+            dataframe = pd.read_csv(filepath)
+            transactions = parse_csv_dataframe(dataframe)
+            stats = insert_transactions(transactions)
+            stats.update({
+                "success": True,
+                "file_type": "csv",
+                "message": f"{stats['imported']} transactions imported from CSV.",
+            })
+            return jsonify(stats)
 
-        dataframe = pd.read_csv(
-            filepath
-        )
+        # PDF: extract text, then use AI to identify transaction rows.
+        if not ai_is_configured():
+            return jsonify({
+                "success": False,
+                "message": "PDF processing requires Groq AI. Check GROQ_API_KEY in .env."
+            }), 503
 
-    except Exception:
+        text = extract_pdf_text(filepath)
+        if not text:
+            return jsonify({
+                "success": False,
+                "message": "No readable text was found in this PDF. A scanned/image-only statement needs OCR before import."
+            }), 400
 
-        return jsonify({
-            "success": False,
-            "message":
-                "Could not read CSV file"
-        }), 400
+        ai_transactions = parse_statement_text_with_ai(text)
+        transactions = normalize_ai_transactions(ai_transactions)
+        if not transactions:
+            return jsonify({
+                "success": False,
+                "message": "The PDF was readable, but no transaction rows could be reliably extracted."
+            }), 422
 
-    required_columns = {
-        "Date",
-        "Description",
-        "Amount",
-        "Type"
-    }
+        stats = insert_transactions(transactions)
+        stats.update({
+            "success": True,
+            "file_type": "pdf",
+            "message": f"{stats['imported']} transactions imported from PDF using AI.",
+        })
+        return jsonify(stats)
 
-    if not required_columns.issubset(
-        dataframe.columns
-    ):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "CSV must contain "
-                "Date, Description, "
-                "Amount and Type columns"
-        }), 400
-
-    connection = get_db_connection()
-
-    imported = 0
-    categorized = 0
-    needs_review = 0
-    skipped = 0
-
-    for _, row in dataframe.iterrows():
-
+    except pd.errors.EmptyDataError:
+        return jsonify({"success": False, "message": "The CSV file is empty."}), 400
+    except Exception as exc:
+        return jsonify({"success": False, "message": f"Could not process statement: {exc}"}), 400
+    finally:
+        # Keep uploads out of the long-term project folder after processing.
         try:
-
-            description = str(
-                row["Description"]
-            ).strip()
-
-            transaction_type = (
-                normalize_transaction_type(
-                    row["Type"]
-                )
-            )
-
-            if not transaction_type:
-
-                skipped += 1
-                continue
-
-            amount = float(
-                row["Amount"]
-            )
-
-            amount = abs(amount)
-
-            transaction_date = normalize_date(
-                row["Date"]
-            )
-
-            if amount <= 0:
-
-                skipped += 1
-                continue
-
-            if not transaction_date:
-
-                skipped += 1
-                continue
-
-            category = categorize_transaction(
-                description
-            )
-
-            if category == "Other":
-
-                needs_review += 1
-
-            else:
-
-                categorized += 1
-
-            connection.execute("""
-                INSERT INTO transactions
-                (
-                    type,
-                    amount,
-                    category,
-                    description,
-                    date
-                )
-
-                VALUES (?, ?, ?, ?, ?)
-            """, (
-                transaction_type,
-                amount,
-                category,
-                description,
-                transaction_date
-            ))
-
-            imported += 1
-
-        except Exception:
-
-            skipped += 1
-
-    connection.commit()
-    connection.close()
-
-    return jsonify({
-
-        "success": True,
-
-        "message":
-            f"{imported} transactions imported",
-
-        "imported":
-            imported,
-
-        "categorized":
-            categorized,
-
-        "needs_review":
-            needs_review,
-
-        "skipped":
-            skipped
-    })
+            if os.path.exists(filepath):
+                os.remove(filepath)
+        except OSError:
+            pass
 
 
 # =========================================================
