@@ -19,11 +19,9 @@
     box-sizing: border-box;
 }
 
-
 html {
     scroll-behavior: smooth;
 }
-
 
 body {
     font-family:
@@ -33,14 +31,10 @@ body {
         sans-serif;
 
     background: #f3faf8;
-
     color: #102326;
-
     min-height: 100vh;
-
     overflow-x: hidden;
 }
-
 
 button,
 input,
@@ -49,11 +43,9 @@ textarea {
     font: inherit;
 }
 
-
 button {
     cursor: pointer;
 }
-
 
 button:focus,
 input:focus,
@@ -62,12 +54,10 @@ textarea:focus {
     outline: none;
 }
 
-
 ::selection {
     background: #b8f4e2;
     color: #073c3a;
 }
-
 
 [hidden] {
     display: none !important;
@@ -123,7 +113,6 @@ textarea:focus {
     padding: 5px 10px 32px;
 }
 
-
 .brand-logo {
     width: 50px;
     height: 50px;
@@ -152,8 +141,21 @@ textarea:focus {
     box-shadow:
         0 8px 20px
         rgba(20, 216, 169, 0.18);
+
+    overflow: hidden;
 }
 
+/* Latest logo image support */
+.brand-logo img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
+
+    border-radius: inherit;
+}
 
 .brand-text h1 {
     font-size: 24px;
@@ -164,7 +166,6 @@ textarea:focus {
 
     letter-spacing: -0.8px;
 }
-
 
 .brand-text p {
     margin-top: 5px;
@@ -193,7 +194,6 @@ textarea:focus {
 
     gap: 8px;
 }
-
 
 .nav-item {
     width: 100%;
@@ -227,7 +227,6 @@ textarea:focus {
         transform 0.2s ease;
 }
 
-
 .nav-item:hover {
     background:
         rgba(255, 255, 255, 0.09);
@@ -237,7 +236,6 @@ textarea:focus {
     transform:
         translateX(2px);
 }
-
 
 .nav-item.active {
     background:
@@ -252,7 +250,6 @@ textarea:focus {
     box-shadow:
         inset 3px 0 0 #52e2bd;
 }
-
 
 .nav-icon {
     width: 23px;
@@ -304,7 +301,6 @@ textarea:focus {
     margin: 0 auto;
 }
 
-
 .page-view.active-view {
     display: block;
 
@@ -313,7 +309,6 @@ textarea:focus {
         0.25s
         ease;
 }
-
 
 @keyframes pageFade {
 
@@ -350,7 +345,6 @@ textarea:focus {
     margin-bottom: 24px;
 }
 
-
 .eyebrow,
 .card-label {
     color: #159a80;
@@ -363,7 +357,6 @@ textarea:focus {
 
     text-transform: uppercase;
 }
-
 
 .page-header h2 {
     margin-top: 6px;
@@ -383,7 +376,6 @@ textarea:focus {
 
     letter-spacing: -1.2px;
 }
-
 
 .page-subtitle {
     margin-top: 7px;
@@ -410,7 +402,6 @@ textarea:focus {
     flex-wrap: wrap;
 }
 
-
 .primary-button,
 .secondary-button {
     border-radius: 12px;
@@ -432,7 +423,6 @@ textarea:focus {
         border-color 0.2s ease;
 }
 
-
 .primary-button {
     background:
         linear-gradient(
@@ -448,7 +438,6 @@ textarea:focus {
         rgba(11, 155, 125, 0.18);
 }
 
-
 .primary-button:hover {
     transform:
         translateY(-2px);
@@ -457,7 +446,6 @@ textarea:focus {
         0 10px 24px
         rgba(11, 155, 125, 0.25);
 }
-
 
 .secondary-button {
     background: white;
@@ -468,7 +456,6 @@ textarea:focus {
         1px solid #cfe6e1;
 }
 
-
 .secondary-button:hover {
     background: #effaf7;
 
@@ -477,7 +464,6 @@ textarea:focus {
     transform:
         translateY(-1px);
 }
-
 
 .primary-button:active,
 .secondary-button:active {
@@ -519,7 +505,6 @@ textarea:focus {
         rgba(7, 72, 68, 0.10);
 }
 
-
 .hero-card::after {
     content: "";
 
@@ -544,7 +529,6 @@ textarea:focus {
     pointer-events: none;
 }
 
-
 .hero-content {
     position: relative;
 
@@ -555,7 +539,6 @@ textarea:focus {
         36px;
 }
 
-
 .hero-label {
     color: #9beed9;
 
@@ -565,7 +548,6 @@ textarea:focus {
 
     letter-spacing: 1.8px;
 }
-
 
 .hero-content h3 {
     margin-top: 9px;
@@ -584,7 +566,6 @@ textarea:focus {
     letter-spacing: -1px;
 }
 
-
 .hero-content > p:not(.hero-label) {
     margin-top: 6px;
 
@@ -599,7 +580,6 @@ textarea:focus {
     font-size: 14px;
 }
 
-
 .hero-content .primary-button {
     margin-top: 20px;
 
@@ -609,7 +589,6 @@ textarea:focus {
 
     box-shadow: none;
 }
-
 
 .hero-content .primary-button:hover {
     background: #c3f7e9;
@@ -638,7 +617,6 @@ textarea:focus {
     margin-bottom: 18px;
 }
 
-
 .stat-card {
     min-height: 140px;
 
@@ -665,7 +643,6 @@ textarea:focus {
         box-shadow 0.2s ease;
 }
 
-
 .stat-card:hover {
     transform:
         translateY(-2px);
@@ -679,7 +656,6 @@ textarea:focus {
             0.08
         );
 }
-
 
 .stat-card::before {
     content: "";
@@ -696,7 +672,6 @@ textarea:focus {
     background: #22b997;
 }
 
-
 .stat-label {
     color: #78898b;
 
@@ -704,7 +679,6 @@ textarea:focus {
 
     font-weight: 600;
 }
-
 
 .stat-card h3 {
     margin-top: 7px;
@@ -720,7 +694,6 @@ textarea:focus {
     overflow-wrap: anywhere;
 }
 
-
 .stat-change {
     margin-top: 8px;
 
@@ -731,11 +704,9 @@ textarea:focus {
     font-weight: 600;
 }
 
-
 .stat-change.positive {
     color: #15956f;
 }
-
 
 .stat-change.negative {
     color: #d65f65;
@@ -753,7 +724,6 @@ textarea:focus {
 
     margin-bottom: 18px;
 }
-
 
 .dashboard-grid.two-column {
     grid-template-columns:
@@ -792,7 +762,6 @@ textarea:focus {
         );
 }
 
-
 .card-header {
     display: flex;
 
@@ -805,7 +774,6 @@ textarea:focus {
     margin-bottom: 20px;
 }
 
-
 .card-header h3,
 .dashboard-card > h3 {
     margin-top: 5px;
@@ -816,7 +784,6 @@ textarea:focus {
 
     font-weight: 750;
 }
-
 
 .card-header > span {
     color: #0b9d80;
@@ -839,13 +806,11 @@ textarea:focus {
     min-height: 260px;
 }
 
-
 .chart-container canvas {
     width: 100% !important;
 
     height: 100% !important;
 }
-
 
 .chart-controls {
     display: flex;
@@ -858,7 +823,6 @@ textarea:focus {
 
     margin-bottom: 14px;
 }
-
 
 .chart-controls select {
     min-width: 115px;
@@ -885,11 +849,9 @@ textarea:focus {
     cursor: pointer;
 }
 
-
 .chart-controls select:hover {
     border-color: #9fd7ca;
 }
-
 
 .chart-controls select:focus {
     border-color: #25b998;
@@ -913,22 +875,27 @@ textarea:focus {
     height: 300px;
 }
 
-
 .donut-wrapper {
     position: relative;
 
     width: 100%;
 
     height: 245px;
-}
 
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
 
 .donut-wrapper canvas {
     width: 100% !important;
 
     height: 100% !important;
-}
 
+    display: block;
+}
 
 .donut-center {
     position: absolute;
@@ -953,8 +920,13 @@ textarea:focus {
     justify-content: center;
 
     text-align: center;
-}
 
+    width: max-content;
+
+    min-width: 110px;
+
+    z-index: 2;
+}
 
 .donut-center strong {
     color: #12282a;
@@ -962,8 +934,11 @@ textarea:focus {
     font-size: 17px;
 
     font-weight: 800;
-}
 
+    white-space: nowrap;
+
+    line-height: 1.15;
+}
 
 .donut-center span {
     margin-top: 3px;
@@ -973,6 +948,8 @@ textarea:focus {
     font-size: 10px;
 
     font-weight: 600;
+
+    white-space: nowrap;
 }
 
 
@@ -988,7 +965,6 @@ textarea:focus {
     gap: 17px;
 }
 
-
 .budget-preview-item {
     display: flex;
 
@@ -996,7 +972,6 @@ textarea:focus {
 
     gap: 8px;
 }
-
 
 .budget-preview-item > div:first-child {
     display: flex;
@@ -1008,13 +983,11 @@ textarea:focus {
     gap: 10px;
 }
 
-
 .budget-preview-item strong {
     color: #34494b;
 
     font-size: 12px;
 }
-
 
 .budget-preview-item span {
     color: #7b8b8c;
@@ -1033,11 +1006,9 @@ textarea:focus {
     margin-bottom: 20px;
 }
 
-
 .progress-item:last-child {
     margin-bottom: 0;
 }
-
 
 .progress-info {
     display: flex;
@@ -1055,13 +1026,11 @@ textarea:focus {
     font-size: 12px;
 }
 
-
 .progress-info strong {
     color: #263b3d;
 
     font-size: 12px;
 }
-
 
 .progress-bar {
     width: 100%;
@@ -1075,11 +1044,9 @@ textarea:focus {
     background: #e5f0ed;
 }
 
-
 .progress-bar.large {
     height: 10px;
 }
-
 
 .progress-fill {
     height: 100%;
@@ -1110,7 +1077,6 @@ textarea:focus {
     flex-direction: column;
 }
 
-
 .insight-item {
     display: flex;
 
@@ -1124,11 +1090,9 @@ textarea:focus {
         1px solid #edf3f1;
 }
 
-
 .insight-item:last-child {
     border-bottom: none;
 }
-
 
 .insight-item > span {
     width: 34px;
@@ -1148,7 +1112,6 @@ textarea:focus {
     font-size: 15px;
 }
 
-
 .insight-item strong {
     display: block;
 
@@ -1156,7 +1119,6 @@ textarea:focus {
 
     font-size: 13px;
 }
-
 
 .insight-item p {
     margin-top: 4px;
@@ -1185,7 +1147,6 @@ textarea:focus {
     margin-bottom: 17px;
 }
 
-
 .search-box {
     width:
         min(
@@ -1212,13 +1173,11 @@ textarea:focus {
     border-radius: 12px;
 }
 
-
 .search-box span {
     color: #8da09f;
 
     font-size: 15px;
 }
-
 
 .search-box input {
     width: 100%;
@@ -1233,7 +1192,6 @@ textarea:focus {
 
     font-size: 13px;
 }
-
 
 .search-box input::placeholder {
     color: #9aa9a9;
@@ -1256,7 +1214,6 @@ textarea:focus {
     border-radius: 11px;
 }
 
-
 .filter-tab {
     border: none;
 
@@ -1274,11 +1231,9 @@ textarea:focus {
     font-weight: 650;
 }
 
-
 .filter-tab:hover {
     color: #087d69;
 }
-
 
 .filter-tab.active {
     background: white;
@@ -1306,7 +1261,6 @@ textarea:focus {
     padding: 0;
 }
 
-
 .transaction-table {
     width: 100%;
 
@@ -1314,7 +1268,6 @@ textarea:focus {
 
     min-width: 680px;
 }
-
 
 .transaction-table th {
     padding:
@@ -1338,7 +1291,6 @@ textarea:focus {
         1px solid #e7f0ee;
 }
 
-
 .transaction-table td {
     padding:
         17px 20px;
@@ -1351,22 +1303,18 @@ textarea:focus {
         1px solid #edf3f1;
 }
 
-
 .transaction-table tbody tr {
     transition:
         background 0.15s ease;
 }
 
-
 .transaction-table tbody tr:hover {
     background: #f6fbfa;
 }
 
-
 .transaction-table tbody tr:last-child td {
     border-bottom: none;
 }
-
 
 .transaction-table td:last-child {
     font-weight: 750;
@@ -1388,7 +1336,6 @@ textarea:focus {
 
     margin-top: 18px;
 }
-
 
 .category-chips span {
     padding:
@@ -1412,7 +1359,6 @@ textarea:focus {
         transform 0.2s ease;
 }
 
-
 .category-chips span:hover {
     background: #e1f5ef;
 
@@ -1431,7 +1377,6 @@ textarea:focus {
     flex-direction: column;
 }
 
-
 .budget-item {
     padding:
         17px 0;
@@ -1440,18 +1385,15 @@ textarea:focus {
         1px solid #edf3f1;
 }
 
-
 .budget-item:first-child {
     padding-top: 0;
 }
-
 
 .budget-item:last-child {
     border-bottom: none;
 
     padding-bottom: 0;
 }
-
 
 .budget-item-header {
     display: flex;
@@ -1465,7 +1407,6 @@ textarea:focus {
     margin-bottom: 10px;
 }
 
-
 .budget-item-header span {
     color: #33494a;
 
@@ -1473,7 +1414,6 @@ textarea:focus {
 
     font-weight: 650;
 }
-
 
 .budget-item-header p {
     margin-top: 5px;
@@ -1483,19 +1423,16 @@ textarea:focus {
     font-size: 12px;
 }
 
-
 .budget-item-header > strong {
     color: #118c73;
 
     font-size: 14px;
 }
 
-
 .section-heading {
     margin:
         30px 0 16px;
 }
-
 
 .section-heading h3 {
     margin-top: 5px;
@@ -1524,7 +1461,6 @@ textarea:focus {
     gap: 17px;
 }
 
-
 .goal-card {
     display: flex;
 
@@ -1534,7 +1470,6 @@ textarea:focus {
 
     min-height: 270px;
 }
-
 
 .goal-card-icon {
     width: 48px;
@@ -1554,7 +1489,6 @@ textarea:focus {
     margin-bottom: 15px;
 }
 
-
 .goal-card h3 {
     color: #173033;
 
@@ -1562,7 +1496,6 @@ textarea:focus {
 
     line-height: 1.35;
 }
-
 
 .goal-card p {
     margin-top: 7px;
@@ -1574,13 +1507,11 @@ textarea:focus {
     line-height: 1.5;
 }
 
-
 .goal-card .primary-button {
     width: fit-content;
 
     margin-top: 18px;
 }
-
 
 .goal-amount {
     display: flex;
@@ -1593,20 +1524,17 @@ textarea:focus {
         20px 0 12px;
 }
 
-
 .goal-amount strong {
     color: #087e69;
 
     font-size: 27px;
 }
 
-
 .goal-amount span {
     color: #879494;
 
     font-size: 13px;
 }
-
 
 .goal-progress-text {
     margin-top: 7px;
@@ -1618,7 +1546,6 @@ textarea:focus {
     font-weight: 700;
 }
 
-
 .goal-actions {
     display: flex;
 
@@ -1626,7 +1553,6 @@ textarea:focus {
 
     margin-top: 16px;
 }
-
 
 .goal-actions .secondary-button {
     padding:
@@ -1660,11 +1586,9 @@ textarea:focus {
     color: #849292;
 }
 
-
 .empty-state p {
     font-size: 13px;
 }
-
 
 .empty-state .primary-button {
     margin-top: 4px;
@@ -1690,7 +1614,6 @@ textarea:focus {
         );
 }
 
-
 .health-card::after {
     content: "";
 
@@ -1713,7 +1636,6 @@ textarea:focus {
         );
 }
 
-
 .health-card h3 {
     margin-top: 8px;
 
@@ -1730,7 +1652,6 @@ textarea:focus {
     z-index: 1;
 }
 
-
 .health-card > p:last-child {
     margin-top: 8px;
 
@@ -1742,7 +1663,6 @@ textarea:focus {
 
     z-index: 1;
 }
-
 
 .insight-grid {
     display: grid;
@@ -1758,7 +1678,6 @@ textarea:focus {
     margin-top: 18px;
 }
 
-
 .coach-card {
     min-height: 205px;
 
@@ -1766,7 +1685,6 @@ textarea:focus {
         transform 0.2s ease,
         box-shadow 0.2s ease;
 }
-
 
 .coach-card:hover {
     transform:
@@ -1781,7 +1699,6 @@ textarea:focus {
             0.08
         );
 }
-
 
 .coach-card-icon {
     width: 43px;
@@ -1801,7 +1718,6 @@ textarea:focus {
     font-size: 18px;
 }
 
-
 .coach-card h3 {
     margin-top: 6px;
 
@@ -1812,7 +1728,6 @@ textarea:focus {
     line-height: 1.35;
 }
 
-
 .coach-card > p:last-of-type {
     margin-top: 8px;
 
@@ -1822,7 +1737,6 @@ textarea:focus {
 
     line-height: 1.6;
 }
-
 
 .coach-card .primary-button {
     margin-top: 16px;
@@ -1853,19 +1767,16 @@ textarea {
     font-size: 13px;
 }
 
-
 input::placeholder,
 textarea::placeholder {
     color: #9aa9a9;
 }
-
 
 input:hover,
 select:hover,
 textarea:hover {
     border-color: #b9dcd4;
 }
-
 
 input:focus,
 select:focus,
@@ -1882,11 +1793,9 @@ textarea:focus {
         );
 }
 
-
 select {
     cursor: pointer;
 }
-
 
 textarea {
     min-height: 90px;
@@ -1930,7 +1839,6 @@ textarea {
         ease;
 }
 
-
 @keyframes modalFade {
 
     from {
@@ -1942,7 +1850,6 @@ textarea {
     }
 
 }
-
 
 .modal-card {
     width:
@@ -1982,7 +1889,6 @@ textarea {
         ease;
 }
 
-
 @keyframes modalSlide {
 
     from {
@@ -2003,7 +1909,6 @@ textarea {
 
 }
 
-
 .modal-header {
     display: flex;
 
@@ -2016,7 +1921,6 @@ textarea {
     margin-bottom: 22px;
 }
 
-
 .modal-header h3 {
     margin-top: 5px;
 
@@ -2026,7 +1930,6 @@ textarea {
 
     font-weight: 750;
 }
-
 
 .modal-close {
     width: 34px;
@@ -2056,7 +1959,6 @@ textarea {
         color 0.2s ease;
 }
 
-
 .modal-close:hover {
     background: #e0f1ed;
 
@@ -2072,7 +1974,6 @@ textarea {
     margin-bottom: 17px;
 }
 
-
 .form-group label {
     display: block;
 
@@ -2085,13 +1986,11 @@ textarea {
     font-weight: 700;
 }
 
-
 .form-group label span {
     color: #8b9a9a;
 
     font-weight: 500;
 }
-
 
 .form-group:last-of-type {
     margin-bottom: 0;
@@ -2119,7 +2018,6 @@ textarea {
         1px solid #edf3f1;
 }
 
-
 .modal-actions button {
     min-width: 110px;
 }
@@ -2135,11 +2033,9 @@ textarea {
     height: 8px;
 }
 
-
 ::-webkit-scrollbar-track {
     background: #edf5f3;
 }
-
 
 ::-webkit-scrollbar-thumb {
     background: #a9c9c2;
@@ -2147,14 +2043,741 @@ textarea {
     border-radius: 10px;
 }
 
-
 ::-webkit-scrollbar-thumb:hover {
     background: #75afa3;
 }
 
 
 /* =========================================================
-   31. RESPONSIVE — LARGE TABLET
+   31. RECURRING EXPENSES
+   New home-card feature
+========================================================= */
+
+#home-recurring-expenses {
+    min-height: 100%;
+}
+
+.recurring-summary {
+    margin-top: 4px;
+    margin-bottom: 12px;
+
+    color: #78898b;
+
+    font-size: 12px;
+
+    line-height: 1.45;
+}
+
+.recurring-expenses-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0;
+}
+
+.recurring-expense-item {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 11px 0;
+
+    border-bottom:
+        1px solid #edf3f1;
+}
+
+.recurring-expense-item:last-child {
+    border-bottom: none;
+}
+
+.recurring-expense-main {
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.recurring-expense-icon {
+    width: 34px;
+    height: 34px;
+
+    flex:
+        0 0 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #e7f8f3;
+
+    color: #087e69;
+
+    font-size: 15px;
+}
+
+.recurring-expense-name {
+    color: #25383b;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.recurring-expense-frequency {
+    margin-top: 3px;
+
+    color: #8a9999;
+
+    font-size: 10px;
+}
+
+.recurring-expense-amount {
+    color: #087e69;
+
+    font-size: 12px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.recurring-empty {
+    padding: 20px 0;
+
+    color: #849292;
+
+    text-align: center;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   32. UPLOAD STATUS
+   CSV + PDF statement import
+========================================================= */
+
+.upload-status-card {
+    margin-top: 16px;
+
+    padding: 16px 18px;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    background: #f7fbfa;
+
+    border:
+        1px solid #dcece8;
+
+    border-radius: 14px;
+}
+
+.upload-status-icon {
+    width: 38px;
+    height: 38px;
+
+    flex:
+        0 0 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #e3f8f2;
+
+    color: #087e69;
+
+    font-size: 17px;
+}
+
+.upload-status-content {
+    min-width: 0;
+
+    flex: 1;
+}
+
+.upload-status-content h4 {
+    color: #25383b;
+
+    font-size: 13px;
+
+    font-weight: 750;
+}
+
+.upload-status-content p {
+    margin-top: 4px;
+
+    color: #78898b;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+.upload-status-stats {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.upload-status-stat {
+    padding:
+        6px 9px;
+
+    border-radius: 8px;
+
+    background: white;
+
+    border:
+        1px solid #e0efeb;
+
+    color: #557071;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+#upload-file-hint {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #8a9999;
+
+    font-size: 10px;
+}
+
+.upload-status-card.success {
+    background: #f3fbf8;
+
+    border-color: #cfe9e1;
+}
+
+.upload-status-card.error {
+    background: #fff7f7;
+
+    border-color: #f0d6d8;
+}
+
+.upload-status-card.loading {
+    background: #f8fbfa;
+}
+
+.upload-status-card.error .upload-status-icon {
+    background: #fdebec;
+
+    color: #b85c61;
+}
+
+
+/* =========================================================
+   33. AI FINANCIAL COACH
+========================================================= */
+
+.ai-coach-panel {
+    margin-top: 18px;
+}
+
+.ai-coach-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 16px;
+}
+
+.ai-coach-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.ai-coach-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex:
+        0 0 40px;
+
+    border-radius: 12px;
+
+    background: #e7f8f3;
+
+    color: #087e69;
+
+    font-size: 17px;
+}
+
+.ai-coach-title h3 {
+    margin: 0;
+
+    color: #173033;
+
+    font-size: 17px;
+
+    font-weight: 750;
+}
+
+.ai-coach-description {
+    margin-top: 4px;
+
+    color: #7b8b8b;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   34. AI STATUS BADGE
+========================================================= */
+
+.ai-status-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        7px 10px;
+
+    border-radius: 20px;
+
+    background: #edf7f4;
+
+    color: #087e69;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.ai-status-badge::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #22b997;
+}
+
+.ai-status-badge.offline {
+    background: #f8eeee;
+
+    color: #b85c61;
+}
+
+.ai-status-badge.offline::before {
+    background: #d86a70;
+}
+
+.ai-status-badge.loading {
+    background: #f4f7f6;
+
+    color: #718282;
+}
+
+.ai-status-badge.loading::before {
+    background: #9aa9a9;
+}
+
+
+/* =========================================================
+   35. AI CHAT
+========================================================= */
+
+.ai-chat-messages {
+    min-height: 280px;
+
+    max-height: 430px;
+
+    overflow-y: auto;
+
+    padding: 14px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    background: #f7fbfa;
+
+    border:
+        1px solid #e0efeb;
+
+    border-radius: 14px;
+}
+
+.ai-message {
+    max-width: 82%;
+
+    padding:
+        10px 12px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+
+    word-break: break-word;
+}
+
+.ai-message.assistant {
+    align-self: flex-start;
+
+    background: white;
+
+    border:
+        1px solid #e0efeb;
+
+    color: #42585a;
+
+    border-bottom-left-radius: 4px;
+}
+
+.ai-message.user {
+    align-self: flex-end;
+
+    background: #e4f8f2;
+
+    color: #17564d;
+
+    border-bottom-right-radius: 4px;
+}
+
+.ai-message p {
+    margin: 0;
+}
+
+.ai-message strong {
+    color: #173033;
+}
+
+.ai-message ul,
+.ai-message ol {
+    margin:
+        6px 0 0 17px;
+}
+
+.ai-message li {
+    margin:
+        3px 0;
+}
+
+
+/* =========================================================
+   36. AI CHAT FORM
+========================================================= */
+
+.ai-chat-form {
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.ai-chat-form textarea {
+    min-height: 46px;
+
+    max-height: 130px;
+
+    resize: vertical;
+
+    margin: 0;
+}
+
+.ai-chat-actions {
+    display: flex;
+
+    gap: 7px;
+}
+
+.ai-chat-actions button {
+    width: 46px;
+    height: 46px;
+
+    padding: 0;
+
+    border-radius: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex:
+        0 0 46px;
+}
+
+
+/* =========================================================
+   37. AI VOICE BUTTON
+========================================================= */
+
+.ai-voice-btn {
+    border:
+        1px solid #cfe6e1;
+
+    background: white;
+
+    color: #087c69;
+}
+
+.ai-voice-btn:hover {
+    background: #effaf7;
+
+    border-color: #9dd9cc;
+}
+
+.ai-voice-btn.listening {
+    background: #e7f8f3;
+
+    border-color: #77cdbd;
+
+    color: #087e69;
+
+    animation:
+        aiPulse
+        1.2s
+        infinite;
+}
+
+
+/* =========================================================
+   38. AI SEND BUTTON
+========================================================= */
+
+.ai-send-btn {
+    border: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1bc9a1,
+            #079477
+        );
+
+    color: white;
+
+    box-shadow:
+        0 7px 18px
+        rgba(
+            11,
+            155,
+            125,
+            0.14
+        );
+}
+
+.ai-send-btn:hover {
+    transform:
+        translateY(-1px);
+}
+
+.ai-send-btn:disabled,
+.ai-voice-btn:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================================================
+   39. AI CHAT STATUS
+========================================================= */
+
+.ai-chat-status {
+    min-height: 16px;
+
+    margin-top: 7px;
+
+    color: #879494;
+
+    font-size: 10px;
+}
+
+.status-success {
+    color: #15956f !important;
+}
+
+.status-error {
+    color: #c45d63 !important;
+}
+
+.status-muted {
+    color: #849292 !important;
+}
+
+
+/* =========================================================
+   40. AI TYPING INDICATOR
+========================================================= */
+
+.ai-typing {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+.ai-typing span {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #7ab6aa;
+
+    animation:
+        aiTyping
+        1s
+        infinite
+        ease-in-out;
+}
+
+.ai-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.ai-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes aiPulse {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 0
+            rgba(
+                34,
+                185,
+                151,
+                0.12
+            );
+    }
+
+    50% {
+        box-shadow:
+            0 0 0 6px
+            rgba(
+                34,
+                185,
+                151,
+                0.08
+            );
+    }
+}
+
+@keyframes aiTyping {
+
+    0%,
+    60%,
+    100% {
+        transform:
+            translateY(0);
+
+        opacity: 0.5;
+    }
+
+    30% {
+        transform:
+            translateY(-3px);
+
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   41. CHART LEGEND
+========================================================= */
+
+/*
+   Chart.js normally creates its legend on the canvas.
+   These selectors also support the custom legend generated
+   by the latest script.js.
+*/
+
+.chart-legend,
+.legend-label,
+.income-expense-legend,
+.income-expenses-legend {
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   42. LATEST GENERAL STATUS HELPERS
+========================================================= */
+
+#upload-imported-count,
+#upload-categorized-count,
+#upload-review-count {
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   43. RESPONSIVE — LARGE TABLET
 ========================================================= */
 
 @media (max-width: 1100px) {
@@ -2162,7 +2785,6 @@ textarea {
     .sidebar {
         width: 210px;
     }
-
 
     .main-content {
         margin-left: 210px;
@@ -2173,7 +2795,6 @@ textarea {
             50px;
     }
 
-
     .summary-grid {
         grid-template-columns:
             repeat(
@@ -2181,7 +2802,6 @@ textarea {
                 minmax(0, 1fr)
             );
     }
-
 
     .insight-grid {
         grid-template-columns:
@@ -2191,7 +2811,6 @@ textarea {
             );
     }
 
-
     .chart-container {
         height: 280px;
     }
@@ -2200,7 +2819,7 @@ textarea {
 
 
 /* =========================================================
-   32. RESPONSIVE — TABLET
+   44. RESPONSIVE — TABLET
 ========================================================= */
 
 @media (max-width: 800px) {
@@ -2217,14 +2836,12 @@ textarea {
             16px;
     }
 
-
     .brand {
         padding:
             5px
             5px
             15px;
     }
-
 
     .sidebar-nav {
         flex-direction: row;
@@ -2233,7 +2850,6 @@ textarea {
 
         padding-bottom: 3px;
     }
-
 
     .nav-item {
         width: auto;
@@ -2246,7 +2862,6 @@ textarea {
             13px;
     }
 
-
     .main-content {
         margin-left: 0;
 
@@ -2256,16 +2871,13 @@ textarea {
             45px;
     }
 
-
     .dashboard-grid.two-column {
         grid-template-columns: 1fr;
     }
 
-
     .goal-grid {
         grid-template-columns: 1fr;
     }
-
 
     .page-header {
         align-items: flex-start;
@@ -2273,16 +2885,13 @@ textarea {
         flex-direction: column;
     }
 
-
     .header-actions {
         width: 100%;
     }
 
-
     .header-actions button {
         flex: 1;
     }
-
 
     .transaction-controls {
         align-items: stretch;
@@ -2290,31 +2899,36 @@ textarea {
         flex-direction: column;
     }
 
-
     .search-box {
         width: 100%;
     }
-
 
     .filter-tabs {
         width: fit-content;
     }
 
-
     .chart-container {
         height: 300px;
     }
 
-
     .insight-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    /* AI */
+    .ai-coach-header {
+        flex-direction: column;
+    }
+
+    .ai-status-badge {
+        align-self: flex-start;
     }
 
 }
 
 
 /* =========================================================
-   33. RESPONSIVE — MOBILE
+   45. RESPONSIVE — MOBILE
 ========================================================= */
 
 @media (max-width: 560px) {
@@ -2322,7 +2936,6 @@ textarea {
     body {
         background: #f3faf8;
     }
-
 
     .sidebar {
         padding:
@@ -2339,13 +2952,11 @@ textarea {
             );
     }
 
-
     .brand {
         justify-content: center;
 
         padding-bottom: 12px;
     }
-
 
     .brand-logo {
         width: 43px;
@@ -2354,16 +2965,17 @@ textarea {
         border-radius: 12px;
     }
 
+    .brand-logo img {
+        border-radius: 12px;
+    }
 
     .brand-text h1 {
         font-size: 20px;
     }
 
-
     .sidebar-nav {
         gap: 5px;
     }
-
 
     .nav-item {
         justify-content: center;
@@ -2375,11 +2987,9 @@ textarea {
         font-size: 11px;
     }
 
-
     .nav-icon {
         font-size: 15px;
     }
-
 
     .main-content {
         padding:
@@ -2388,16 +2998,13 @@ textarea {
             35px;
     }
 
-
     .page-header h2 {
         font-size: 27px;
     }
 
-
     .page-subtitle {
         font-size: 12px;
     }
-
 
     .hero-card {
         min-height: 190px;
@@ -2405,18 +3012,15 @@ textarea {
         border-radius: 16px;
     }
 
-
     .hero-content {
         padding:
             24px
             22px;
     }
 
-
     .hero-content h3 {
         font-size: 24px;
     }
-
 
     .summary-grid {
         grid-template-columns:
@@ -2428,23 +3032,19 @@ textarea {
         gap: 10px;
     }
 
-
     .stat-card {
         min-height: 125px;
 
         padding: 15px;
     }
 
-
     .stat-card h3 {
         font-size: 19px;
     }
 
-
     .stat-change {
         font-size: 10px;
     }
-
 
     .dashboard-card {
         padding: 16px;
@@ -2452,11 +3052,9 @@ textarea {
         border-radius: 15px;
     }
 
-
     .chart-container {
         height: 275px;
     }
-
 
     .chart-controls {
         justify-content: stretch;
@@ -2464,63 +3062,51 @@ textarea {
         width: 100%;
     }
 
-
     .chart-controls select {
         flex: 1;
 
         min-width: 0;
     }
 
-
     .spending-chart-container {
         height: 300px;
     }
-
 
     .donut-wrapper {
         height: 240px;
     }
 
-
     .insight-grid {
         grid-template-columns: 1fr;
     }
-
 
     .header-actions {
         flex-direction: column;
     }
 
-
     .header-actions button {
         width: 100%;
     }
-
 
     .filter-tabs {
         width: 100%;
     }
 
-
     .filter-tab {
         flex: 1;
     }
-
 
     .goal-grid {
         grid-template-columns: 1fr;
     }
 
-
     .category-chips span {
         font-size: 11px;
     }
 
-
     .modal-overlay {
         padding: 12px;
     }
-
 
     .modal-card {
         padding: 19px;
@@ -2533,31 +3119,70 @@ textarea {
             );
     }
 
-
     .modal-actions {
         flex-direction: column-reverse;
     }
-
 
     .modal-actions button {
         width: 100%;
     }
 
-
     .goal-amount strong {
         font-size: 23px;
     }
 
-
     .transaction-table {
         min-width: 620px;
+    }
+
+    /* Recurring */
+    .recurring-expense-item {
+        padding: 10px 0;
+    }
+
+    /* Upload */
+    .upload-status-card {
+        padding: 13px;
+    }
+
+    /* AI */
+    .ai-chat-messages {
+        min-height: 230px;
+
+        max-height: 360px;
+
+        padding: 10px;
+    }
+
+    .ai-message {
+        max-width: 90%;
+    }
+
+    .ai-chat-form {
+        align-items: stretch;
+    }
+
+    .ai-chat-form textarea {
+        min-height: 44px;
+    }
+
+    .ai-chat-actions {
+        flex:
+            0 0 auto;
+    }
+
+    .ai-chat-actions button {
+        width: 42px;
+        height: 42px;
+
+        flex-basis: 42px;
     }
 
 }
 
 
 /* =========================================================
-   34. VERY SMALL MOBILE
+   46. VERY SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 380px) {
@@ -2566,11 +3191,9 @@ textarea {
         grid-template-columns: 1fr;
     }
 
-
     .brand-text h1 {
         font-size: 18px;
     }
-
 
     .nav-item {
         padding:
@@ -2580,16 +3203,13 @@ textarea {
         font-size: 10px;
     }
 
-
     .hero-content h3 {
         font-size: 22px;
     }
 
-
     .stat-card h3 {
         font-size: 20px;
     }
-
 
     .chart-container {
         height: 250px;
@@ -2599,7 +3219,7 @@ textarea {
 
 
 /* =========================================================
-   35. REDUCED MOTION
+   47. REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2612,6 +3232,11 @@ textarea {
 
         transition: none !important;
 
+        animation: none !important;
+    }
+
+    .ai-voice-btn.listening,
+    .ai-typing span {
         animation: none !important;
     }
 
