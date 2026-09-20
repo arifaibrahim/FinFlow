@@ -752,7 +752,10 @@ def get_groq_client():
 
 
 def ai_is_configured():
-    return bool(Groq is not None and GROQ_API_KEY)
+    # Smart Coach is considered configured when a Groq API key is
+    # available. The Python SDK is preferred, but the REST fallback
+    # below keeps the chat working even if the SDK is unavailable.
+    return bool(GROQ_API_KEY)
 
 
 def extract_json_from_text(text):
@@ -784,22 +787,73 @@ def extract_json_from_text(text):
 
 
 def groq_chat(messages, temperature=0.2, max_tokens=1200, json_mode=False):
-    """Call Groq and return plain assistant text."""
-    client = get_groq_client()
-    if client is None:
+    """Call Groq and return plain assistant text. Uses the SDK when available and a standard-library REST fallback otherwise."""
+    if not GROQ_API_KEY:
         raise RuntimeError(
-            "Groq AI is not configured. Install 'groq' and set GROQ_API_KEY in .env."
+            "Groq AI is not configured. Set GROQ_API_KEY in .env."
         )
-    kwargs = {
+
+    # Preferred path: official Groq Python SDK.
+    client = get_groq_client()
+    if client is not None:
+        kwargs = {
+            "model": GROQ_MODEL,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        if json_mode:
+            kwargs["response_format"] = {"type": "json_object"}
+        response = client.chat.completions.create(**kwargs)
+        return response.choices[0].message.content or ""
+
+    # Fallback: direct Groq REST API. This avoids making the Smart
+    # Coach depend on the SDK being installed.
+    payload = {
         "model": GROQ_MODEL,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
     if json_mode:
-        kwargs["response_format"] = {"type": "json_object"}
-    response = client.chat.completions.create(**kwargs)
-    return response.choices[0].message.content or ""
+        payload["response_format"] = {"type": "json_object"}
+
+    body = json.dumps(payload).encode("utf-8")
+    req = urlrequest.Request(
+        "https://api.groq.com/openai/v1/chat/completions",
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+        },
+        method="POST",
+    )
+
+    try:
+        with urlrequest.urlopen(req, timeout=45) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        try:
+            details = exc.read().decode("utf-8")
+        except Exception:
+            details = str(exc)
+        raise RuntimeError(f"Groq API error: {details[:500]}") from exc
+    except URLError as exc:
+        raise RuntimeError(f"Could not connect to Groq: {exc}") from exc
+
+    choices = data.get("choices") or []
+    if not choices:
+        raise RuntimeError("Groq returned no response choices.")
+
+    message = choices[0].get("message") or {}
+    content = message.get("content") or ""
+    if isinstance(content, list):
+        content = "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict)
+        )
+    return str(content).strip()
 
 
 def get_recurring_expenses_data():
@@ -834,6 +888,45 @@ def get_recurring_expenses_data():
             "estimated_monthly": round(float(row["amount"] or 0), 2),
         })
     return result
+
+
+def format_ai_reply(text):
+    """Clean an AI response so Smart Coach never shows raw markdown artifacts."""
+    if not text:
+        return "I could not generate a response right now."
+
+    cleaned = str(text).strip()
+
+    # Remove common markdown wrappers that look broken when the
+    # frontend renders the response as plain text.
+    cleaned = re.sub(r"\*\*(.*?)\*\*", r"\1", cleaned)
+    cleaned = re.sub(r"__(.*?)__", r"\1", cleaned)
+    cleaned = re.sub(r"(?<!\*)\*(?!\s)(.*?)(?<!\s)\*", r"\1", cleaned)
+    cleaned = re.sub(r"`([^`]*)`", r"\1", cleaned)
+    cleaned = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", cleaned)
+
+    lines = []
+    for raw_line in cleaned.splitlines():
+        line = raw_line.strip()
+        if not line:
+            if lines and lines[-1] != "":
+                lines.append("")
+            continue
+
+        # Convert markdown headings to clean section labels.
+        line = re.sub(r"^#{1,6}\s*", "", line)
+
+        # Convert markdown bullets to a consistent FinFlow bullet.
+        line = re.sub(r"^[-*+]\s+", "• ", line)
+
+        lines.append(line)
+
+    cleaned = "\n".join(lines).strip()
+
+    # Avoid repeated blank lines.
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+
+    return cleaned
 
 
 def get_ai_financial_context(limit=40):
@@ -1062,10 +1155,13 @@ def parse_csv_dataframe(dataframe):
 
 @app.route("/api/ai/status")
 def ai_status():
+    configured = ai_is_configured()
     return jsonify({
-        "configured": ai_is_configured(),
-        "model": GROQ_MODEL if ai_is_configured() else None,
-        "provider": "Groq" if ai_is_configured() else None,
+        "configured": configured,
+        "connected": configured,
+        "status": "connected" if configured else "not_configured",
+        "model": GROQ_MODEL if configured else None,
+        "provider": "Groq" if configured else None,
     })
 
 
@@ -1102,7 +1198,19 @@ def ai_chat():
 Answer only finance, budgeting, spending, saving, transaction, goal, or FinFlow-app questions.
 If a request is unrelated, politely say you can help only with finance and FinFlow.
 Use only the supplied financial context for personal financial facts. Never invent balances, transactions, budgets, goals, or spending numbers.
-Give concise, practical answers. When making calculations, use the supplied numbers and show the calculation when useful.
+Give concise, practical answers in a natural human tone.
+IMPORTANT RESPONSE FORMAT: Do not use Markdown syntax, asterisks, hashtags, code blocks, or markdown tables. Use plain text with clear short sections. When useful, structure the answer as:
+Summary:
+<one or two sentences>
+
+Details:
+• <fact>
+• <fact>
+
+Recommendation:
+• <practical next step>
+Only include sections that are useful for the question.
+When making calculations, use the supplied numbers and show the calculation when useful. Format money with the ₹ symbol and commas, for example ₹1,500.00.
 Do not claim to be a licensed financial adviser. For investments, taxes, loans, or other regulated matters, give general educational information and note when professional advice may be appropriate.
 Financial context JSON follows:\n""" + json.dumps(context, ensure_ascii=False)
 
@@ -1111,9 +1219,27 @@ Financial context JSON follows:\n""" + json.dumps(context, ensure_ascii=False)
             {"role": "system", "content": system},
             {"role": "user", "content": question},
         ], temperature=0.2, max_tokens=900)
-        return jsonify({"success": True, "reply": reply, "context_used": True})
+        reply = format_ai_reply(reply)
+        return jsonify({
+            "success": True,
+            "reply": reply,
+            "answer": reply,
+            "context_used": True,
+            "ai_used": True
+        })
     except Exception as exc:
         return jsonify({"success": False, "message": f"AI request failed: {exc}"}), 502
+
+
+# Backward-compatible aliases used by earlier FinFlow frontend versions.
+@app.route("/api/ai-status")
+def ai_status_legacy():
+    return ai_status()
+
+
+@app.route("/api/ai-chat", methods=["POST"])
+def ai_chat_legacy():
+    return ai_chat()
 
 
 @app.route("/api/ai/categorize", methods=["POST"])

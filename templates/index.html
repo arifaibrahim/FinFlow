@@ -1,1962 +1,1799 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>FinFlow | Money in Motion</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-</head>
-
-
-<body data-ai-enabled="true">
-
-
-<!-- =========================================================
-     SIDEBAR
-========================================================= -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FinFlow | Money in Motion</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head><body data-ai-enabled="true">
 
 <aside class="sidebar">
+<div class="brand">
+<div class="brand-logo">
+<img src="{{ url_for('static', filename='images/finflow-logo.png') }}" alt="FinFlow logo" onerror="this.style.display='none'; this.parentElement.textContent='FF';">
+</div>
+<div class="brand-text"><h1>FinFlow</h1><p>Money in Motion</p></div>
+</div>
 
-    <div class="brand">
-
-        <div class="brand-logo">
-            <img
-                src="{{ url_for('static', filename='images/finflow-logo.png') }}"
-                alt="FinFlow logo"
-                onerror="this.style.display='none'; this.parentElement.textContent='FF';"
-            >
-        </div>
-
-        <div class="brand-text">
-
-            <h1>
-                FinFlow
-            </h1>
-
-            <p>
-                Money in Motion
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <nav class="sidebar-nav">
-
-        <button
-            class="nav-item active"
-            data-view="home"
-        >
-
-            <span class="nav-icon">
-                🏠
-            </span>
-
-            <span>
-                Home
-            </span>
-
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-view="transactions"
-        >
-
-            <span class="nav-icon">
-                💳
-            </span>
-
-            <span>
-                Transactions
-            </span>
-
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-view="budget"
-        >
-
-            <span class="nav-icon">
-                🎯
-            </span>
-
-            <span>
-                Budget &amp; Goals
-            </span>
-
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-view="coach"
-        >
-
-            <span class="nav-icon">
-                ✨
-            </span>
-
-            <span>
-                Smart Coach
-            </span>
-
-        </button>
-
-    </nav>
-
+<nav class="sidebar-nav">
+<button class="nav-item active" data-view="home"><span class="nav-icon">🏠</span><span>Home</span></button>
+<button class="nav-item" data-view="transactions"><span class="nav-icon">💳</span><span>Transactions</span></button>
+<button class="nav-item" data-view="budget"><span class="nav-icon">🎯</span><span>Budget &amp; Goals</span></button>
+<button class="nav-item" data-view="coach"><span class="nav-icon">✨</span><span>Smart Coach</span></button>
+</nav>
 </aside>
-
-
-
-<!-- =========================================================
-     MAIN CONTENT
-========================================================= -->
 
 <main class="main-content">
 
+<!-- TOP RIGHT HEADER -->
 
-<!-- =========================================================
-     HOME
-========================================================= -->
+<header class="top-app-header">
 
-<section
-    id="home-view"
-    class="page-view active-view"
->
+<div class="top-header-spacer"></div>
 
+<div class="top-header-actions">
 
-    <!-- PAGE HEADER -->
+<div class="global-search">
+<span class="global-search-icon">⌕</span>
+<input id="global-search" type="search" placeholder="Search transactions, categories..." autocomplete="off">
+</div>
 
-    <header class="page-header">
+<button class="notification-button" id="notification-button" type="button" aria-label="Notifications">
+♧
+<span class="notification-dot"></span>
+</button>
 
-        <div>
+<div class="profile-wrapper" id="profile-wrapper">
 
-            <p class="eyebrow">
-                FINANCIAL DASHBOARD
-            </p>
+<button class="profile-trigger" id="profile-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+<span class="profile-avatar" id="profile-avatar">S</span>
+<span class="profile-chevron">⌄</span>
+</button>
 
-            <h2>
-                Good Morning! 👋
-            </h2>
+<div class="profile-menu" id="profile-menu" hidden>
 
-            <p class="page-subtitle">
-                Here's your financial snapshot.
-            </p>
+<div class="profile-menu-header">
 
-        </div>
+<span class="profile-avatar profile-avatar-large" id="profile-avatar-menu">S</span>
 
-    </header>
+<div>
+<strong id="profile-menu-name">Saad</strong>
+<span>FinFlow Profile</span>
+</div>
 
+</div>
 
+<div class="profile-menu-divider"></div>
 
-    <!-- HERO -->
+<button type="button" class="profile-menu-item" id="edit-profile-name-btn">
+<span>✎</span>
+<span>Edit profile name</span>
+</button>
 
-    <section class="hero-card">
+<div class="profile-edit-area" id="profile-edit-area" hidden>
 
-        <div class="hero-content">
+<label for="profile-name-input">Profile name</label>
 
-            <p class="hero-label">
-                FINFLOW
-            </p>
+<input id="profile-name-input" type="text" maxlength="40" placeholder="Enter your name">
 
-            <h3>
-                Your money has a direction.
-            </h3>
+<div class="profile-edit-actions">
 
-            <p>
-                Track today. Plan tomorrow.
-            </p>
+<button type="button" class="secondary-button" id="cancel-profile-edit-btn">
+Cancel
+</button>
 
-            <button
-                class="primary-button"
-                id="view-insights-btn"
-                type="button"
-            >
-                View Insights →
-            </button>
+<button type="button" class="primary-button" id="save-profile-name-btn">
+Save
+</button>
 
-        </div>
+</div>
 
-    </section>
+</div>
 
+</div>
 
+</div>
 
-    <!-- =====================================================
-         SUMMARY CARDS
-    ====================================================== -->
+</div>
 
-    <section class="summary-grid">
+</header>
 
 
-        <!-- BALANCE -->
+<!-- HOME -->
 
-        <article class="stat-card">
+<section id="home-view" class="page-view active-view">
 
-            <p class="stat-label">
-                Total Balance
-            </p>
+<header class="page-header">
+<div>
+<p class="eyebrow">FINANCIAL DASHBOARD</p>
+<h2>Good Morning! 👋</h2>
+<p class="page-subtitle">Here's your financial snapshot.</p>
+</div>
+</header>
 
-            <h3 id="balance-value">
-                ₹0.00
-            </h3>
+<section class="hero-card">
 
-            <p
-                class="stat-change"
-                id="balance-change"
-            >
-                — from last month
-            </p>
+<div class="hero-content">
 
-        </article>
+<p class="hero-label">FINFLOW</p>
 
+<h3>Your money has a direction.</h3>
 
+<p>Track today. Plan tomorrow.</p>
 
-        <!-- INCOME -->
+<button class="primary-button" id="view-insights-btn" type="button">
+View Insights →
+</button>
 
-        <article class="stat-card">
-
-            <p class="stat-label">
-                Total Income
-            </p>
-
-            <h3 id="income-value">
-                ₹0.00
-            </h3>
-
-            <p
-                class="stat-change"
-                id="income-change"
-            >
-                — from last month
-            </p>
-
-        </article>
-
-
-
-        <!-- EXPENSES -->
-
-        <article class="stat-card">
-
-            <p class="stat-label">
-                Total Expenses
-            </p>
-
-            <h3 id="expense-value">
-                ₹0.00
-            </h3>
-
-            <p
-                class="stat-change"
-                id="expense-change"
-            >
-                — from last month
-            </p>
-
-        </article>
-
-
-
-        <!-- SAVINGS RATE -->
-
-        <article class="stat-card">
-
-            <p class="stat-label">
-                Savings Rate
-            </p>
-
-            <h3 id="savings-value">
-                0%
-            </h3>
-
-            <p
-                class="stat-change"
-                id="savings-change"
-            >
-                — from last month
-            </p>
-
-        </article>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         CHARTS
-    ====================================================== -->
-
-    <section class="dashboard-grid two-column">
-
-
-        <!-- INCOME VS EXPENSES -->
-
-        <article class="dashboard-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <p class="card-label">
-                        CASH FLOW
-                    </p>
-
-                    <h3>
-                        Income vs Expenses
-                    </h3>
-
-                </div>
-
-            </div>
-
-
-            <div class="chart-container">
-
-
-                <div class="chart-controls">
-
-
-                    <select
-                        id="cashflow-month"
-                        aria-label="Cash flow month"
-                    >
-
-                        <option value="all">
-                            All Months
-                        </option>
-
-                        <option value="1">
-                            January
-                        </option>
-
-                        <option value="2">
-                            February
-                        </option>
-
-                        <option value="3">
-                            March
-                        </option>
-
-                        <option value="4">
-                            April
-                        </option>
-
-                        <option value="5">
-                            May
-                        </option>
-
-                        <option value="6">
-                            June
-                        </option>
-
-                        <option value="7">
-                            July
-                        </option>
-
-                        <option value="8">
-                            August
-                        </option>
-
-                        <option value="9">
-                            September
-                        </option>
-
-                        <option value="10">
-                            October
-                        </option>
-
-                        <option value="11">
-                            November
-                        </option>
-
-                        <option value="12">
-                            December
-                        </option>
-
-                    </select>
-
-
-                    <select
-                        id="cashflow-year"
-                        aria-label="Cash flow year"
-                    >
-                    </select>
-
-                </div>
-
-
-                <canvas
-                    id="income-expense-chart"
-                ></canvas>
-
-            </div>
-
-        </article>
-
-
-
-        <!-- SPENDING BREAKDOWN -->
-
-        <article class="dashboard-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <p class="card-label">
-                        SPENDING
-                    </p>
-
-                    <h3>
-                        Spending Breakdown
-                    </h3>
-
-                </div>
-
-            </div>
-
-
-            <div class="chart-container spending-chart-container">
-
-
-                <div class="chart-controls">
-
-                    <select
-                        id="spending-month"
-                        aria-label="Spending month"
-                    >
-
-                        <option value="1">
-                            January
-                        </option>
-
-                        <option value="2">
-                            February
-                        </option>
-
-                        <option value="3">
-                            March
-                        </option>
-
-                        <option value="4">
-                            April
-                        </option>
-
-                        <option value="5">
-                            May
-                        </option>
-
-                        <option value="6">
-                            June
-                        </option>
-
-                        <option value="7">
-                            July
-                        </option>
-
-                        <option value="8">
-                            August
-                        </option>
-
-                        <option value="9">
-                            September
-                        </option>
-
-                        <option value="10">
-                            October
-                        </option>
-
-                        <option value="11">
-                            November
-                        </option>
-
-                        <option value="12">
-                            December
-                        </option>
-
-                    </select>
-
-
-                    <select
-                        id="spending-year"
-                        aria-label="Spending year"
-                    >
-                    </select>
-
-                </div>
-
-
-                <div class="donut-wrapper">
-
-                    <canvas
-                        id="spending-chart"
-                    ></canvas>
-
-                    <div class="donut-center">
-
-                        <strong id="spending-total">
-                            ₹0
-                        </strong>
-
-                        <span>
-                            Total Spent
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </article>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         BUDGET + SMART COACH PREVIEW
-    ====================================================== -->
-
-    <section class="dashboard-grid two-column">
-
-
-        <!-- BUDGET PROGRESS -->
-
-        <article class="dashboard-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <p class="card-label">
-                        PLANNING
-                    </p>
-
-                    <h3>
-                        Budget Progress
-                    </h3>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="home-budget-progress"
-                class="budget-preview-list"
-            >
-
-                <div class="empty-state">
-
-                    <p>
-                        No budgets created yet.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </article>
-
-
-
-        <!-- RECURRING EXPENSES -->
-
-        <article class="dashboard-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <p class="card-label">
-                        RECURRING EXPENSES
-                    </p>
-
-                    <h3>
-                        Regular Payments
-                    </h3>
-
-                </div>
-
-                <span>
-                    🔄
-                </span>
-
-            </div>
-
-            <div
-                id="home-recurring-expenses"
-                class="insight-list"
-            >
-
-                <div class="insight-item">
-
-                    <span>
-                        🔄
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            No recurring expenses detected
-                        </strong>
-
-                        <p>
-                            FinFlow will identify repeated payments automatically.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="recurring-summary" id="home-recurring-summary">
-                0 recurring payments · ₹0/month
-            </div>
-
-        </article>
-
-    </section>
-
+</div>
 
 </section>
 
 
-
-<!-- =========================================================
-     TRANSACTIONS
-========================================================= -->
-
-<section
-    id="transactions-view"
-    class="page-view"
->
-
-
-    <header class="page-header">
-
-        <div>
-
-            <p class="eyebrow">
-                MONEY ACTIVITY
-            </p>
-
-            <h2>
-                Transactions
-            </h2>
-
-            <p class="page-subtitle">
-                Track, categorize and manage your income and expenses.
-            </p>
-
-        </div>
-
-
-        <div class="header-actions">
-
-            <button
-                class="secondary-button"
-                id="upload-statement-btn"
-                type="button"
-            >
-                📄 Upload Statement
-            </button>
-
-
-            <input
-                type="file"
-                id="statement-file"
-                accept=".csv,.pdf"
-                hidden
-            >
-
-            <span class="upload-file-hint" id="upload-file-hint">
-                CSV or PDF
-            </span>
-
-
-            <button
-                class="primary-button"
-                id="add-transaction-btn"
-                type="button"
-            >
-                + Add Transaction
-            </button>
-
-        </div>
-
-    </header>
-
-
-
-    <!-- SEARCH + FILTER -->
-
-    <section class="transaction-controls">
-
-
-        <div class="search-box">
-
-            <span>
-                🔍
-            </span>
-
-            <input
-                id="transaction-search"
-                type="text"
-                placeholder="Search transactions..."
-            >
-
-        </div>
-
-
-        <div class="filter-tabs">
-
-            <button
-                class="filter-tab active"
-                data-filter="all"
-                type="button"
-            >
-                All
-            </button>
-
-
-            <button
-                class="filter-tab"
-                data-filter="income"
-                type="button"
-            >
-                Income
-            </button>
-
-
-            <button
-                class="filter-tab"
-                data-filter="expense"
-                type="button"
-            >
-                Expense
-            </button>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- TRANSACTION TABLE -->
-
-    <section class="dashboard-card transaction-table-card">
-
-        <table class="transaction-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Date
-                    </th>
-
-                    <th>
-                        Description
-                    </th>
-
-                    <th>
-                        Category
-                    </th>
-
-                    <th>
-                        Type
-                    </th>
-
-                    <th>
-                        Amount
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="transaction-table-body">
-
-                <tr>
-
-                    <td colspan="5">
-                        No transactions yet
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </section>
-
-
-
-    <section class="dashboard-card upload-status-card" id="upload-status-card" hidden>
-
-        <div class="card-header">
-            <div>
-                <p class="card-label">
-                    STATEMENT IMPORT
-                </p>
-                <h3 id="upload-status-title">
-                    Import Status
-                </h3>
-            </div>
-            <span id="upload-status-icon">
-                ✓
-            </span>
-        </div>
-
-        <p id="upload-status-message">
-            Your statement import status will appear here.
-        </p>
-
-        <div class="upload-stat-grid">
-            <div>
-                <strong id="upload-imported-count">0</strong>
-                <span>Imported</span>
-            </div>
-            <div>
-                <strong id="upload-categorized-count">0</strong>
-                <span>Categorized</span>
-            </div>
-            <div>
-                <strong id="upload-review-count">0</strong>
-                <span>Need Review</span>
-            </div>
-        </div>
-
-    </section>
-
-
-
-    <!-- CATEGORIES -->
-
-    <section class="dashboard-card">
-
-        <p class="card-label">
-            CATEGORIES
-        </p>
-
-        <h3>
-            Supported Categories
-        </h3>
-
-
-        <div class="category-chips">
-
-            <span>
-                🍔 Food
-            </span>
-
-            <span>
-                🚗 Transport
-            </span>
-
-            <span>
-                🛍️ Shopping
-            </span>
-
-            <span>
-                📚 Education
-            </span>
-
-            <span>
-                📄 Bills
-            </span>
-
-            <span>
-                🎬 Entertainment
-            </span>
-
-            <span>
-                ❤️ Health
-            </span>
-
-            <span>
-                💰 Salary
-            </span>
-
-            <span>
-                📦 Other
-            </span>
-
-        </div>
-
-    </section>
-
+<section class="summary-grid">
+
+<article class="stat-card">
+<p class="stat-label">Total Balance</p>
+<h3 id="balance-value">₹0.00</h3>
+<p class="stat-change" id="balance-change">— from last month</p>
+</article>
+
+<article class="stat-card">
+<p class="stat-label">Total Income</p>
+<h3 id="income-value">₹0.00</h3>
+<p class="stat-change" id="income-change">— from last month</p>
+</article>
+
+<article class="stat-card">
+<p class="stat-label">Total Expenses</p>
+<h3 id="expense-value">₹0.00</h3>
+<p class="stat-change" id="expense-change">— from last month</p>
+</article>
+
+<article class="stat-card">
+<p class="stat-label">Savings Rate</p>
+<h3 id="savings-value">0%</h3>
+<p class="stat-change" id="savings-change">— from last month</p>
+</article>
 
 </section>
 
 
+<section class="dashboard-grid two-column">
 
-<!-- =========================================================
-     BUDGET & GOALS
-========================================================= -->
+<article class="dashboard-card">
 
-<section
-    id="budget-view"
-    class="page-view"
->
+<div class="card-header">
+<div>
+<p class="card-label">CASH FLOW</p>
+<h3>Income vs Expenses</h3>
+</div>
+</div>
 
+<div class="chart-container">
 
-    <header class="page-header">
+<div class="chart-controls">
 
-        <div>
+<select id="cashflow-month" aria-label="Cash flow month">
+<option value="all">All Months</option>
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
 
-            <p class="eyebrow">
-                FINANCIAL PLANNING
-            </p>
+<select id="cashflow-year" aria-label="Cash flow year"></select>
 
-            <h2>
-                Budget &amp; Goals
-            </h2>
+</div>
 
-            <p class="page-subtitle">
-                Plan your spending and work toward your savings goals.
-            </p>
+<canvas id="income-expense-chart"></canvas>
 
-        </div>
+</div>
 
-
-        <div class="header-actions">
-
-            <button
-                class="secondary-button"
-                id="create-budget-btn"
-                type="button"
-            >
-                + Create Budget
-            </button>
-
-
-            <button
-                class="primary-button"
-                id="create-goal-btn"
-                type="button"
-            >
-                + Create Goal
-            </button>
-
-        </div>
-
-    </header>
+</article>
 
 
+<article class="dashboard-card">
 
-    <!-- =====================================================
-         BUDGET OVERVIEW
-    ====================================================== -->
+<div class="card-header">
+<div>
+<p class="card-label">SPENDING</p>
+<h3>Spending Breakdown</h3>
+</div>
+</div>
 
-    <section class="dashboard-card">
+<div class="chart-container spending-chart-container">
 
-        <div class="card-header">
+<div class="chart-controls">
 
-            <div>
+<select id="spending-month" aria-label="Spending month">
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
 
-                <p class="card-label">
-                    MONTHLY BUDGET
-                </p>
+<select id="spending-year" aria-label="Spending year"></select>
 
-                <h3>
-                    Budget Overview
-                </h3>
+</div>
 
-            </div>
+<div class="donut-wrapper">
 
-        </div>
+<canvas id="spending-chart"></canvas>
 
+<div class="donut-center">
+<strong id="spending-total">₹0</strong>
+<span>Total Spent</span>
+</div>
 
-        <div
-            id="budget-list"
-            class="budget-list"
-        >
+</div>
 
-            <div class="empty-state">
+</div>
 
-                <p>
-                    No budgets created yet.
-                </p>
-
-                <button
-                    class="primary-button"
-                    id="empty-create-budget-btn"
-                    type="button"
-                >
-                    + Create Budget
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         SAVINGS GOALS
-    ====================================================== -->
-
-    <section>
-
-        <div class="section-heading">
-
-            <p class="eyebrow">
-                SAVINGS
-            </p>
-
-            <h3>
-                Savings Goals
-            </h3>
-
-        </div>
-
-
-        <div
-            id="goals-list"
-            class="goal-grid"
-        >
-
-            <article class="dashboard-card goal-card">
-
-                <div class="goal-card-icon">
-                    🎯
-                </div>
-
-                <h3>
-                    Create your first goal
-                </h3>
-
-                <p>
-                    Set a target and track your progress.
-                </p>
-
-                <button
-                    class="primary-button"
-                    id="empty-create-goal-btn"
-                    type="button"
-                >
-                    + Create Goal
-                </button>
-
-            </article>
-
-        </div>
-
-    </section>
-
+</article>
 
 </section>
 
 
+<section class="dashboard-grid two-column">
 
-<!-- =========================================================
-     SMART COACH
-========================================================= -->
+<article class="dashboard-card">
 
-<section
-    id="coach-view"
-    class="page-view"
->
+<div class="card-header">
+<div>
+<p class="card-label">PLANNING</p>
+<h3>Budget Progress</h3>
+</div>
+</div>
 
+<div id="home-budget-progress" class="budget-preview-list">
 
-    <header class="page-header">
+<div class="empty-state">
+<p>No budgets created yet.</p>
+</div>
 
-        <div>
+</div>
 
-            <p class="eyebrow">
-                FINANCIAL INTELLIGENCE
-            </p>
+</article>
 
-            <h2>
-                Smart Coach ✨
-            </h2>
 
-            <p class="page-subtitle">
-                Turn your financial activity into actionable insights.
-            </p>
+<article class="dashboard-card">
 
-        </div>
+<div class="card-header">
 
-    </header>
+<div>
+<p class="card-label">RECURRING EXPENSES</p>
+<h3>Regular Payments</h3>
+</div>
 
+<span>🔄</span>
 
+</div>
 
-    <!-- FINANCIAL HEALTH -->
+<div id="home-recurring-expenses" class="insight-list">
 
-    <section class="health-card dashboard-card">
+<div class="insight-item">
 
-        <p class="card-label">
-            YOUR FINANCIAL HEALTH
-        </p>
+<span>🔄</span>
 
-        <h3 id="financial-health-score">
-            0
-        </h3>
+<div>
 
-        <p id="financial-health-status">
-            Start adding transactions to receive your financial health score.
-        </p>
+<strong>No recurring expenses detected</strong>
 
-    </section>
+<p>FinFlow will identify repeated payments automatically.</p>
 
+</div>
 
+</div>
 
-    <!-- INSIGHTS -->
+</div>
 
-    <section
-        id="coach-insights"
-        class="insight-grid"
-    >
+<div class="recurring-summary" id="home-recurring-summary">
+0 recurring payments · ₹0/month
+</div>
 
+</article>
 
-        <article class="dashboard-card coach-card">
-
-            <div class="coach-card-icon">
-                💡
-            </div>
-
-            <p class="card-label">
-                SPENDING INSIGHT
-            </p>
-
-            <h3>
-                Understand your spending
-            </h3>
-
-            <p>
-                FinFlow will identify meaningful changes in your spending.
-            </p>
-
-        </article>
-
-
-
-        <article class="dashboard-card coach-card">
-
-            <div class="coach-card-icon">
-                ⚠️
-            </div>
-
-            <p class="card-label">
-                BUDGET ALERT
-            </p>
-
-            <h3>
-                Stay within your limits
-            </h3>
-
-            <p>
-                You'll see alerts when a category approaches its budget.
-            </p>
-
-        </article>
-
-
-
-        <article class="dashboard-card coach-card">
-
-            <div class="coach-card-icon">
-                🔄
-            </div>
-
-            <p class="card-label">
-                RECURRING EXPENSE
-            </p>
-
-            <h3>
-                Detect repeated payments
-            </h3>
-
-            <p>
-                Identify subscriptions and regular bills.
-            </p>
-
-        </article>
-
-
-
-        <article class="dashboard-card coach-card">
-
-            <div class="coach-card-icon">
-                🎯
-            </div>
-
-            <p class="card-label">
-                SAVINGS OPPORTUNITY
-            </p>
-
-            <h3>
-                Find opportunities to save
-            </h3>
-
-            <p>
-                Identify areas where spending could potentially be reduced.
-            </p>
-
-        </article>
-
-
-
-        <article class="dashboard-card coach-card">
-
-            <div class="coach-card-icon">
-                🏆
-            </div>
-
-            <p class="card-label">
-                GOAL PROGRESS
-            </p>
-
-            <h3>
-                Track your progress
-            </h3>
-
-            <p>
-                Monitor your progress toward your savings goals.
-            </p>
-
-        </article>
-
-
-
-        <article class="dashboard-card coach-card">
-
-            <div class="coach-card-icon">
-                ✨
-            </div>
-
-            <p class="card-label">
-                SMART COACH
-            </p>
-
-            <h3>
-                Your financial journey starts here.
-            </h3>
-
-            <p>
-                Add transactions, create budgets and set savings goals
-                to unlock financial insights.
-            </p>
-
-            <button
-                class="primary-button"
-                id="coach-add-transaction-btn"
-                type="button"
-            >
-                Add Transaction
-            </button>
-
-        </article>
-
-
-    </section>
-
-
-
-    <!-- AI FINANCIAL COACH -->
-
-    <section class="dashboard-card ai-coach-panel" id="ai-coach-panel">
-
-        <div class="card-header">
-
-            <div>
-
-                <p class="card-label">
-                    AI FINANCIAL COACH
-                </p>
-
-                <h3>
-                    Ask FinFlow
-                </h3>
-
-            </div>
-
-            <span id="ai-status-badge">
-                ● AI
-            </span>
-
-        </div>
-
-        <p class="ai-coach-description">
-            Ask finance-related questions about your spending, budgets, savings, goals and transactions.
-        </p>
-
-        <div
-            id="ai-chat-messages"
-            class="ai-chat-messages"
-            aria-live="polite"
-        >
-            <div class="ai-message assistant-message">
-                <strong>FinFlow AI</strong>
-                <p>
-                    Hi! Ask me something about your finances. For example: “How much did I spend on food?”
-                </p>
-            </div>
-        </div>
-
-        <form id="ai-chat-form" class="ai-chat-form">
-
-            <input
-                id="ai-chat-input"
-                type="text"
-                placeholder="Ask FinFlow about your finances..."
-                autocomplete="off"
-                maxlength="2000"
-            >
-
-            <button
-                type="button"
-                class="secondary-button ai-voice-button"
-                id="ai-voice-btn"
-                title="Use voice input"
-                aria-label="Use voice input"
-            >
-                🎤
-            </button>
-
-            <button
-                type="submit"
-                class="primary-button"
-                id="ai-send-btn"
-            >
-                Ask →
-            </button>
-
-        </form>
-
-        <p id="ai-chat-status" class="ai-chat-status" aria-live="polite"></p>
-
-    </section>
+</section>
 
 </section>
 
 
+<!-- TRANSACTIONS -->
+
+<section id="transactions-view" class="page-view">
+
+<header class="page-header">
+
+<div>
+
+<p class="eyebrow">MONEY ACTIVITY</p>
+
+<h2>Transactions</h2>
+
+<p class="page-subtitle">
+Track, categorize and manage your income and expenses.
+</p>
+
+</div>
+
+<div class="header-actions">
+
+<button class="secondary-button" id="upload-statement-btn" type="button">
+📄 Upload Statement
+</button>
+
+<input type="file" id="statement-file" accept=".csv,.pdf" hidden>
+
+<span class="upload-file-hint" id="upload-file-hint">
+CSV or PDF
+</span>
+
+<button class="primary-button" id="add-transaction-btn" type="button">
++ Add Transaction
+</button>
+
+</div>
+
+</header>
+
+
+<section class="transaction-controls">
+
+<div class="search-box">
+
+<span>🔍</span>
+
+<input id="transaction-search" type="text" placeholder="Search transactions...">
+
+</div>
+
+<div class="filter-tabs">
+
+<button class="filter-tab active" data-filter="all" type="button">
+All
+</button>
+
+<button class="filter-tab" data-filter="income" type="button">
+Income
+</button>
+
+<button class="filter-tab" data-filter="expense" type="button">
+Expense
+</button>
+
+</div>
+
+</section>
+
+
+<section class="dashboard-card transaction-table-card">
+
+<table class="transaction-table">
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Description</th>
+<th>Category</th>
+<th>Type</th>
+<th>Amount</th>
+</tr>
+
+</thead>
+
+<tbody id="transaction-table-body">
+
+<tr>
+<td colspan="5">No transactions yet</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+
+<section class="dashboard-card upload-status-card" id="upload-status-card" hidden>
+
+<div class="card-header">
+
+<div>
+
+<p class="card-label">STATEMENT IMPORT</p>
+
+<h3 id="upload-status-title">
+Import Status
+</h3>
+
+</div>
+
+<span id="upload-status-icon">✓</span>
+
+</div>
+
+<p id="upload-status-message">
+Your statement import status will appear here.
+</p>
+
+<div class="upload-stat-grid">
+
+<div>
+<strong id="upload-imported-count">0</strong>
+<span>Imported</span>
+</div>
+
+<div>
+<strong id="upload-categorized-count">0</strong>
+<span>Categorized</span>
+</div>
+
+<div>
+<strong id="upload-review-count">0</strong>
+<span>Need Review</span>
+</div>
+
+</div>
+
+</section>
+
+
+<section class="dashboard-card">
+
+<p class="card-label">CATEGORIES</p>
+
+<h3>Supported Categories</h3>
+
+<div class="category-chips">
+
+<span>🍔 Food</span>
+<span>🚗 Transport</span>
+<span>🛍️ Shopping</span>
+<span>📚 Education</span>
+<span>📄 Bills</span>
+<span>🎬 Entertainment</span>
+<span>❤️ Health</span>
+<span>💰 Salary</span>
+<span>📦 Other</span>
+
+</div>
+
+</section>
+
+</section>
+
+
+<!-- BUDGET & GOALS -->
+
+<section id="budget-view" class="page-view">
+
+<header class="page-header">
+
+<div>
+
+<p class="eyebrow">FINANCIAL PLANNING</p>
+
+<h2>Budget &amp; Goals</h2>
+
+<p class="page-subtitle">
+Plan your spending and work toward your savings goals.
+</p>
+
+</div>
+
+<div class="header-actions">
+
+<button class="secondary-button" id="create-budget-btn" type="button">
++ Create Budget
+</button>
+
+<button class="primary-button" id="create-goal-btn" type="button">
++ Create Goal
+</button>
+
+</div>
+
+</header>
+
+
+<section class="dashboard-card">
+
+<div class="card-header">
+
+<div>
+
+<p class="card-label">MONTHLY BUDGET</p>
+
+<h3>Budget Overview</h3>
+
+</div>
+
+</div>
+
+<div id="budget-list" class="budget-list">
+
+<div class="empty-state">
+
+<p>No budgets created yet.</p>
+
+<button class="primary-button" id="empty-create-budget-btn" type="button">
++ Create Budget
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section>
+
+<div class="section-heading">
+
+<p class="eyebrow">SAVINGS</p>
+
+<h3>Savings Goals</h3>
+
+</div>
+
+<div id="goals-list" class="goal-grid">
+
+<article class="dashboard-card goal-card">
+
+<div class="goal-card-icon">🎯</div>
+
+<h3>Create your first goal</h3>
+
+<p>Set a target and track your progress.</p>
+
+<button class="primary-button" id="empty-create-goal-btn" type="button">
++ Create Goal
+</button>
+
+</article>
+
+</div>
+
+</section>
+
+</section>
+
+
+<!-- SMART COACH -->
+
+<section id="coach-view" class="page-view">
+
+<header class="page-header">
+
+<div>
+
+<p class="eyebrow">FINANCIAL INTELLIGENCE</p>
+
+<h2>Smart Coach ✨</h2>
+
+<p class="page-subtitle">
+Turn your financial activity into actionable insights.
+</p>
+
+</div>
+
+</header>
+
+
+<section class="health-card dashboard-card">
+
+<p class="card-label">YOUR FINANCIAL HEALTH</p>
+
+<h3 id="financial-health-score">0</h3>
+
+<p id="financial-health-status">
+Start adding transactions to receive your financial health score.
+</p>
+
+</section>
+
+
+<section id="coach-insights" class="insight-grid">
+
+<article class="dashboard-card coach-card">
+
+<div class="coach-card-icon">💡</div>
+
+<p class="card-label">SPENDING INSIGHT</p>
+
+<h3>Understand your spending</h3>
+
+<p>
+FinFlow will identify meaningful changes in your spending.
+</p>
+
+</article>
+
+
+<article class="dashboard-card coach-card">
+
+<div class="coach-card-icon">⚠️</div>
+
+<p class="card-label">BUDGET ALERT</p>
+
+<h3>Stay within your limits</h3>
+
+<p>
+You'll see alerts when a category approaches its budget.
+</p>
+
+</article>
+
+
+<article class="dashboard-card coach-card">
+
+<div class="coach-card-icon">🔄</div>
+
+<p class="card-label">RECURRING EXPENSE</p>
+
+<h3>Detect repeated payments</h3>
+
+<p>
+Identify subscriptions and regular bills.
+</p>
+
+</article>
+
+
+<article class="dashboard-card coach-card">
+
+<div class="coach-card-icon">🎯</div>
+
+<p class="card-label">SAVINGS OPPORTUNITY</p>
+
+<h3>Find opportunities to save</h3>
+
+<p>
+Identify areas where spending could potentially be reduced.
+</p>
+
+</article>
+
+
+<article class="dashboard-card coach-card">
+
+<div class="coach-card-icon">🏆</div>
+
+<p class="card-label">GOAL PROGRESS</p>
+
+<h3>Track your progress</h3>
+
+<p>
+Monitor your progress toward your savings goals.
+</p>
+
+</article>
+
+
+<article class="dashboard-card coach-card">
+
+<div class="coach-card-icon">✨</div>
+
+<p class="card-label">SMART COACH</p>
+
+<h3>Your financial journey starts here.</h3>
+
+<p>
+Add transactions, create budgets and set savings goals
+to unlock financial insights.
+</p>
+
+<button class="primary-button" id="coach-add-transaction-btn" type="button">
+Add Transaction
+</button>
+
+</article>
+
+</section>
+
+
+<!-- AI FINANCIAL COACH -->
+
+<section class="dashboard-card ai-coach-panel" id="ai-coach-panel">
+
+<div class="card-header">
+
+<div>
+
+<p class="card-label">AI FINANCIAL COACH</p>
+
+<h3>Ask FinFlow</h3>
+
+</div>
+
+<span id="ai-status-badge">
+● AI
+</span>
+
+</div>
+
+
+<p class="ai-coach-description">
+Ask finance-related questions about your spending, budgets, savings, goals and transactions.
+</p>
+
+
+<div id="ai-chat-messages" class="ai-chat-messages" aria-live="polite">
+
+<div class="ai-message assistant-message">
+
+<strong>FinFlow AI</strong>
+
+<p>
+Hi! Ask me something about your finances. For example:
+“How much did I spend on food?”
+</p>
+
+</div>
+
+</div>
+
+
+<form id="ai-chat-form" class="ai-chat-form">
+
+<input
+id="ai-chat-input"
+type="text"
+placeholder="Ask FinFlow about your finances..."
+autocomplete="off"
+maxlength="2000"
+>
+
+<button
+type="button"
+class="secondary-button ai-voice-button"
+id="ai-voice-btn"
+title="Use voice input"
+aria-label="Use voice input"
+>
+🎤
+</button>
+
+<button
+type="submit"
+class="primary-button"
+id="ai-send-btn"
+>
+Ask →
+</button>
+
+</form>
+
+<p id="ai-chat-status" class="ai-chat-status" aria-live="polite"></p>
+
+</section>
+
+</section>
 
 </main>
 
 
+<!-- ADD TRANSACTION MODAL -->
 
-<!-- =========================================================
-     ADD TRANSACTION MODAL
-========================================================= -->
+<div id="transaction-modal" class="modal-overlay" hidden>
 
 <div
-    id="transaction-modal"
-    class="modal-overlay"
-    hidden
+class="modal-card"
+role="dialog"
+aria-modal="true"
+aria-labelledby="transaction-modal-title"
 >
 
-    <div
-        class="modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="transaction-modal-title"
-    >
+<div class="modal-header">
 
-        <div class="modal-header">
+<div>
 
-            <div>
+<p class="card-label">MONEY ACTIVITY</p>
 
-                <p class="card-label">
-                    MONEY ACTIVITY
-                </p>
+<h3 id="transaction-modal-title">
+Add Transaction
+</h3>
 
-                <h3 id="transaction-modal-title">
-                    Add Transaction
-                </h3>
+</div>
 
-            </div>
-
-            <button
-                class="modal-close"
-                type="button"
-                data-close-modal="transaction-modal"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-
-        <form id="transaction-form">
-
-
-            <!-- TYPE -->
-
-            <div class="form-group">
-
-                <label for="transaction-type">
-                    Type
-                </label>
-
-                <select
-                    id="transaction-type"
-                    name="type"
-                    required
-                >
-
-                    <option value="">
-                        Select type
-                    </option>
-
-                    <option value="income">
-                        🟢 Income
-                    </option>
-
-                    <option value="expense">
-                        🔴 Expense
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- AMOUNT -->
-
-            <div class="form-group">
-
-                <label for="transaction-amount">
-                    Amount
-                </label>
-
-                <input
-                    id="transaction-amount"
-                    name="amount"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder="Enter amount"
-                    required
-                >
-
-            </div>
-
-
-
-            <!-- CATEGORY -->
-
-            <div class="form-group">
-
-                <label for="transaction-category">
-                    Category
-                </label>
-
-                <select
-                    id="transaction-category"
-                    name="category"
-                    required
-                >
-
-                    <option value="">
-                        Select category
-                    </option>
-
-                    <option value="Food">
-                        🍔 Food
-                    </option>
-
-                    <option value="Transport">
-                        🚗 Transport
-                    </option>
-
-                    <option value="Shopping">
-                        🛍️ Shopping
-                    </option>
-
-                    <option value="Education">
-                        📚 Education
-                    </option>
-
-                    <option value="Bills">
-                        📄 Bills
-                    </option>
-
-                    <option value="Entertainment">
-                        🎬 Entertainment
-                    </option>
-
-                    <option value="Health">
-                        ❤️ Health
-                    </option>
-
-                    <option value="Salary">
-                        💰 Salary
-                    </option>
-
-                    <option value="Other">
-                        📦 Other
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- DESCRIPTION -->
-
-            <div class="form-group">
-
-                <label for="transaction-description">
-                    Description
-                    <span>(optional)</span>
-                </label>
-
-                <input
-                    id="transaction-description"
-                    name="description"
-                    type="text"
-                    placeholder="Example: Grocery shopping"
-                >
-
-            </div>
-
-
-
-            <!-- DATE -->
-
-            <div class="form-group">
-
-                <label for="transaction-date">
-                    Date
-                </label>
-
-                <input
-                    id="transaction-date"
-                    name="date"
-                    type="date"
-                    required
-                >
-
-            </div>
-
-
-
-            <!-- ACTIONS -->
-
-            <div class="modal-actions">
-
-                <button
-                    class="secondary-button"
-                    type="button"
-                    data-close-modal="transaction-modal"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    class="primary-button"
-                    type="submit"
-                >
-                    Add Transaction
-                </button>
-
-            </div>
-
-
-        </form>
-
-    </div>
+<button
+class="modal-close"
+type="button"
+data-close-modal="transaction-modal"
+>
+×
+</button>
 
 </div>
 
 
+<form id="transaction-form">
 
-<!-- =========================================================
-     CREATE BUDGET MODAL
-========================================================= -->
+<div class="form-group">
 
-<div
-    id="budget-modal"
-    class="modal-overlay"
-    hidden
->
+<label for="transaction-type">
+Type
+</label>
 
-    <div
-        class="modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="budget-modal-title"
-    >
+<select id="transaction-type" name="type" required>
 
-        <div class="modal-header">
+<option value="">Select type</option>
 
-            <div>
+<option value="income">🟢 Income</option>
 
-                <p class="card-label">
-                    MONTHLY PLANNING
-                </p>
+<option value="expense">🔴 Expense</option>
 
-                <h3 id="budget-modal-title">
-                    Create Budget
-                </h3>
-
-            </div>
-
-            <button
-                class="modal-close"
-                type="button"
-                data-close-modal="budget-modal"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-
-        <form id="budget-form">
-
-
-            <div class="form-group">
-
-                <label for="budget-category">
-                    Category
-                </label>
-
-                <select
-                    id="budget-category"
-                    name="category"
-                    required
-                >
-
-                    <option value="">
-                        Select category
-                    </option>
-
-                    <option value="Food">
-                        🍔 Food
-                    </option>
-
-                    <option value="Transport">
-                        🚗 Transport
-                    </option>
-
-                    <option value="Shopping">
-                        🛍️ Shopping
-                    </option>
-
-                    <option value="Education">
-                        📚 Education
-                    </option>
-
-                    <option value="Bills">
-                        📄 Bills
-                    </option>
-
-                    <option value="Entertainment">
-                        🎬 Entertainment
-                    </option>
-
-                    <option value="Health">
-                        ❤️ Health
-                    </option>
-
-                    <option value="Other">
-                        📦 Other
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <div class="form-group">
-
-                <label for="budget-amount">
-                    Monthly Budget
-                </label>
-
-                <input
-                    id="budget-amount"
-                    name="amount"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder="Enter budget amount"
-                    required
-                >
-
-            </div>
-
-
-
-            <div class="modal-actions">
-
-                <button
-                    class="secondary-button"
-                    type="button"
-                    data-close-modal="budget-modal"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    class="primary-button"
-                    type="submit"
-                >
-                    Create Budget
-                </button>
-
-            </div>
-
-
-        </form>
-
-    </div>
+</select>
 
 </div>
 
 
+<div class="form-group">
 
-<!-- =========================================================
-     CREATE GOAL MODAL
-========================================================= -->
+<label for="transaction-amount">
+Amount
+</label>
 
-<div
-    id="goal-modal"
-    class="modal-overlay"
-    hidden
+<input
+id="transaction-amount"
+name="amount"
+type="number"
+min="0.01"
+step="0.01"
+placeholder="Enter amount"
+required
 >
-
-    <div
-        class="modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="goal-modal-title"
-    >
-
-        <div class="modal-header">
-
-            <div>
-
-                <p class="card-label">
-                    SAVINGS
-                </p>
-
-                <h3 id="goal-modal-title">
-                    Create Goal
-                </h3>
-
-            </div>
-
-            <button
-                class="modal-close"
-                type="button"
-                data-close-modal="goal-modal"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-
-        <form id="goal-form">
-
-
-            <!-- GOAL NAME -->
-
-            <div class="form-group">
-
-                <label for="goal-name">
-                    Goal
-                </label>
-
-                <select
-                    id="goal-name-select"
-                    name="goalPreset"
-                >
-
-                    <option value="">
-                        Choose a goal
-                    </option>
-
-                    <option value="Buy a Laptop">
-                        💻 Buy a Laptop
-                    </option>
-
-                    <option value="Trip">
-                        ✈️ Trip
-                    </option>
-
-                    <option value="Emergency Fund">
-                        🛡️ Emergency Fund
-                    </option>
-
-                    <option value="Education">
-                        🎓 Education
-                    </option>
-
-                    <option value="New Phone">
-                        📱 New Phone
-                    </option>
-
-                    <option value="custom">
-                        ✏️ Custom Goal
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <div
-                class="form-group"
-                id="custom-goal-group"
-                hidden
-            >
-
-                <label for="goal-name">
-                    Custom Goal Name
-                </label>
-
-                <input
-                    id="goal-name"
-                    name="name"
-                    type="text"
-                    placeholder="Example: New Camera"
-                >
-
-            </div>
-
-
-
-            <!-- TARGET -->
-
-            <div class="form-group">
-
-                <label for="goal-target">
-                    Target Amount
-                </label>
-
-                <input
-                    id="goal-target"
-                    name="target"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder="Enter target amount"
-                    required
-                >
-
-            </div>
-
-
-
-            <!-- CURRENT -->
-
-            <div class="form-group">
-
-                <label for="goal-current">
-                    Current Saved Amount
-                </label>
-
-                <input
-                    id="goal-current"
-                    name="current"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value="0"
-                    placeholder="0"
-                >
-
-            </div>
-
-
-
-            <!-- DEADLINE -->
-
-            <div class="form-group">
-
-                <label for="goal-deadline">
-                    Deadline
-                    <span>(optional)</span>
-                </label>
-
-                <input
-                    id="goal-deadline"
-                    name="deadline"
-                    type="date"
-                >
-
-            </div>
-
-
-
-            <!-- ACTIONS -->
-
-            <div class="modal-actions">
-
-                <button
-                    class="secondary-button"
-                    type="button"
-                    data-close-modal="goal-modal"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    class="primary-button"
-                    type="submit"
-                >
-                    Create Goal
-                </button>
-
-            </div>
-
-
-        </form>
-
-    </div>
 
 </div>
 
 
+<div class="form-group">
 
-<!-- =========================================================
-     SCRIPT
-========================================================= -->
+<label for="transaction-category">
+Category
+</label>
+
+<select id="transaction-category" name="category" required>
+
+<option value="">Select category</option>
+
+<option value="Food">🍔 Food</option>
+<option value="Transport">🚗 Transport</option>
+<option value="Shopping">🛍️ Shopping</option>
+<option value="Education">📚 Education</option>
+<option value="Bills">📄 Bills</option>
+<option value="Entertainment">🎬 Entertainment</option>
+<option value="Health">❤️ Health</option>
+<option value="Salary">💰 Salary</option>
+<option value="Other">📦 Other</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="transaction-description">
+Description <span>(optional)</span>
+</label>
+
+<input
+id="transaction-description"
+name="description"
+type="text"
+placeholder="Example: Grocery shopping"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="transaction-date">
+Date
+</label>
+
+<input
+id="transaction-date"
+name="date"
+type="date"
+required
+>
+
+</div>
+
+
+<div class="modal-actions">
+
+<button
+class="secondary-button"
+type="button"
+data-close-modal="transaction-modal"
+>
+Cancel
+</button>
+
+<button
+class="primary-button"
+type="submit"
+>
+Add Transaction
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+<!-- CREATE BUDGET MODAL -->
+
+<div id="budget-modal" class="modal-overlay" hidden>
+
+<div
+class="modal-card"
+role="dialog"
+aria-modal="true"
+aria-labelledby="budget-modal-title"
+>
+
+<div class="modal-header">
+
+<div>
+
+<p class="card-label">MONTHLY PLANNING</p>
+
+<h3 id="budget-modal-title">
+Create Budget
+</h3>
+
+</div>
+
+<button
+class="modal-close"
+type="button"
+data-close-modal="budget-modal"
+>
+×
+</button>
+
+</div>
+
+
+<form id="budget-form">
+
+<div class="form-group">
+
+<label for="budget-category">
+Category
+</label>
+
+<select id="budget-category" name="category" required>
+
+<option value="">Select category</option>
+
+<option value="Food">🍔 Food</option>
+<option value="Transport">🚗 Transport</option>
+<option value="Shopping">🛍️ Shopping</option>
+<option value="Education">📚 Education</option>
+<option value="Bills">📄 Bills</option>
+<option value="Entertainment">🎬 Entertainment</option>
+<option value="Health">❤️ Health</option>
+<option value="Other">📦 Other</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="budget-amount">
+Monthly Budget
+</label>
+
+<input
+id="budget-amount"
+name="amount"
+type="number"
+min="0.01"
+step="0.01"
+placeholder="Enter budget amount"
+required
+>
+
+</div>
+
+
+<div class="modal-actions">
+
+<button
+class="secondary-button"
+type="button"
+data-close-modal="budget-modal"
+>
+Cancel
+</button>
+
+<button
+class="primary-button"
+type="submit"
+>
+Create Budget
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+<!-- CREATE GOAL MODAL -->
+
+<div id="goal-modal" class="modal-overlay" hidden>
+
+<div
+class="modal-card"
+role="dialog"
+aria-modal="true"
+aria-labelledby="goal-modal-title"
+>
+
+<div class="modal-header">
+
+<div>
+
+<p class="card-label">SAVINGS</p>
+
+<h3 id="goal-modal-title">
+Create Goal
+</h3>
+
+</div>
+
+<button
+class="modal-close"
+type="button"
+data-close-modal="goal-modal"
+>
+×
+</button>
+
+</div>
+
+
+<form id="goal-form">
+
+<div class="form-group">
+
+<label for="goal-name">
+Goal
+</label>
+
+<select id="goal-name-select" name="goalPreset">
+
+<option value="">
+Choose a goal
+</option>
+
+<option value="Buy a Laptop">
+💻 Buy a Laptop
+</option>
+
+<option value="Trip">
+✈️ Trip
+</option>
+
+<option value="Emergency Fund">
+🛡️ Emergency Fund
+</option>
+
+<option value="Education">
+🎓 Education
+</option>
+
+<option value="New Phone">
+📱 New Phone
+</option>
+
+<option value="custom">
+✏️ Custom Goal
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group" id="custom-goal-group" hidden>
+
+<label for="goal-name">
+Custom Goal Name
+</label>
+
+<input
+id="goal-name"
+name="name"
+type="text"
+placeholder="Example: New Camera"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="goal-target">
+Target Amount
+</label>
+
+<input
+id="goal-target"
+name="target"
+type="number"
+min="0.01"
+step="0.01"
+placeholder="Enter target amount"
+required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="goal-current">
+Current Saved Amount
+</label>
+
+<input
+id="goal-current"
+name="current"
+type="number"
+min="0"
+step="0.01"
+value="0"
+placeholder="0"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="goal-deadline">
+Deadline <span>(optional)</span>
+</label>
+
+<input
+id="goal-deadline"
+name="deadline"
+type="date"
+>
+
+</div>
+
+
+<div class="modal-actions">
+
+<button
+class="secondary-button"
+type="button"
+data-close-modal="goal-modal"
+>
+Cancel
+</button>
+
+<button
+class="primary-button"
+type="submit"
+>
+Create Goal
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+<!-- PROFILE + BOTTOM NAV FUNCTIONALITY -->
+
+<script>
+
+(function () {
+
+const profileTrigger =
+document.getElementById("profile-trigger");
+
+const profileMenu =
+document.getElementById("profile-menu");
+
+const profileWrapper =
+document.getElementById("profile-wrapper");
+
+const profileName =
+document.getElementById("profile-menu-name");
+
+const profileInput =
+document.getElementById("profile-name-input");
+
+const profileAvatar =
+document.getElementById("profile-avatar");
+
+const profileAvatarMenu =
+document.getElementById("profile-avatar-menu");
+
+const editProfileButton =
+document.getElementById("edit-profile-name-btn");
+
+const profileEditArea =
+document.getElementById("profile-edit-area");
+
+const saveProfileButton =
+document.getElementById("save-profile-name-btn");
+
+const cancelProfileButton =
+document.getElementById("cancel-profile-edit-btn");
+
+const storedName =
+localStorage.getItem("finflow_profile_name");
+
+const defaultName =
+storedName || "Saad";
+
+
+function getInitials(name) {
+
+const clean =
+String(name || "Saad").trim();
+
+if (!clean) {
+return "S";
+}
+
+const parts =
+clean.split(/\s+/);
+
+if (parts.length === 1) {
+return parts[0].charAt(0).toUpperCase();
+}
+
+return (
+parts[0].charAt(0) +
+parts[parts.length - 1].charAt(0)
+).toUpperCase();
+
+}
+
+
+function applyProfileName(name) {
+
+const clean =
+String(name || "Saad").trim() || "Saad";
+
+const initials =
+getInitials(clean);
+
+if (profileName) {
+profileName.textContent = clean;
+}
+
+if (profileAvatar) {
+profileAvatar.textContent = initials;
+}
+
+if (profileAvatarMenu) {
+profileAvatarMenu.textContent = initials;
+}
+
+if (profileInput) {
+profileInput.value = clean;
+}
+
+localStorage.setItem(
+"finflow_profile_name",
+clean
+);
+
+}
+
+
+function openProfileMenu() {
+
+if (!profileMenu) return;
+
+profileMenu.hidden = false;
+
+if (profileTrigger) {
+profileTrigger.setAttribute(
+"aria-expanded",
+"true"
+);
+}
+
+}
+
+
+function closeProfileMenu() {
+
+if (!profileMenu) return;
+
+profileMenu.hidden = true;
+
+if (profileTrigger) {
+profileTrigger.setAttribute(
+"aria-expanded",
+"false"
+);
+}
+
+}
+
+
+function toggleProfileMenu() {
+
+if (!profileMenu) return;
+
+if (profileMenu.hidden) {
+openProfileMenu();
+} else {
+closeProfileMenu();
+}
+
+}
+
+
+applyProfileName(defaultName);
+
+
+if (profileTrigger) {
+
+profileTrigger.addEventListener(
+"click",
+function (event) {
+
+event.stopPropagation();
+
+toggleProfileMenu();
+
+}
+);
+
+}
+
+
+if (editProfileButton) {
+
+editProfileButton.addEventListener(
+"click",
+function () {
+
+if (profileEditArea) {
+profileEditArea.hidden = false;
+}
+
+if (profileInput) {
+profileInput.focus();
+profileInput.select();
+}
+
+}
+);
+
+}
+
+
+if (cancelProfileButton) {
+
+cancelProfileButton.addEventListener(
+"click",
+function () {
+
+if (profileEditArea) {
+profileEditArea.hidden = true;
+}
+
+if (profileInput) {
+
+profileInput.value =
+profileName
+? profileName.textContent
+: defaultName;
+
+}
+
+}
+);
+
+}
+
+
+if (saveProfileButton) {
+
+saveProfileButton.addEventListener(
+"click",
+function () {
+
+const value =
+profileInput
+? profileInput.value.trim()
+: "";
+
+if (!value) {
+
+if (profileInput) {
+profileInput.focus();
+}
+
+return;
+
+}
+
+applyProfileName(value);
+
+if (profileEditArea) {
+profileEditArea.hidden = true;
+}
+
+closeProfileMenu();
+
+}
+);
+
+}
+
+
+if (profileInput) {
+
+profileInput.addEventListener(
+"keydown",
+function (event) {
+
+if (event.key === "Enter") {
+
+event.preventDefault();
+
+if (saveProfileButton) {
+saveProfileButton.click();
+}
+
+}
+
+if (event.key === "Escape") {
+
+if (cancelProfileButton) {
+cancelProfileButton.click();
+}
+
+}
+
+}
+);
+
+}
+
+
+document.addEventListener(
+"click",
+function (event) {
+
+if (
+profileWrapper &&
+!profileWrapper.contains(event.target)
+) {
+
+closeProfileMenu();
+
+}
+
+}
+);
+
+
+const bottomButtons =
+document.querySelectorAll(
+".bottom-nav-item"
+);
+
+
+function setBottomActive(id) {
+
+bottomButtons.forEach(
+function (button) {
+
+button.classList.toggle(
+"active",
+button.id === id
+);
+
+}
+);
+
+}
+
+
+const homeButton =
+document.getElementById(
+"bottom-home-btn"
+);
+
+const analyticsButton =
+document.getElementById(
+"bottom-analytics-btn"
+);
+
+const historyButton =
+document.getElementById(
+"bottom-history-btn"
+);
+
+const profileButton =
+document.getElementById(
+"bottom-profile-btn"
+);
+
+const addButton =
+document.getElementById(
+"bottom-add-transaction-btn"
+);
+
+
+if (homeButton) {
+
+homeButton.addEventListener(
+"click",
+function () {
+
+if (typeof showPage === "function") {
+showPage("home");
+}
+
+setBottomActive(
+"bottom-home-btn"
+);
+
+window.scrollTo({
+top: 0,
+behavior: "smooth"
+});
+
+}
+);
+
+}
+
+
+if (analyticsButton) {
+
+analyticsButton.addEventListener(
+"click",
+function () {
+
+if (typeof showPage === "function") {
+showPage("home");
+}
+
+setBottomActive(
+"bottom-analytics-btn"
+);
+
+const chart =
+document.getElementById(
+"income-expense-chart"
+);
+
+if (chart) {
+
+chart.closest(
+".dashboard-card"
+)?.scrollIntoView({
+behavior: "smooth",
+block: "start"
+});
+
+}
+
+}
+);
+
+}
+
+
+if (addButton) {
+
+addButton.addEventListener(
+"click",
+function () {
+
+if (typeof openModal === "function") {
+
+openModal(
+"transaction-modal"
+);
+
+} else {
+
+const modal =
+document.getElementById(
+"transaction-modal"
+);
+
+if (modal) {
+modal.hidden = false;
+}
+
+}
+
+}
+);
+
+}
+
+
+if (historyButton) {
+
+historyButton.addEventListener(
+"click",
+function () {
+
+if (typeof showPage === "function") {
+showPage("transactions");
+}
+
+setBottomActive(
+"bottom-history-btn"
+);
+
+window.scrollTo({
+top: 0,
+behavior: "smooth"
+});
+
+}
+);
+
+}
+
+
+if (profileButton) {
+
+profileButton.addEventListener(
+"click",
+function () {
+
+setBottomActive(
+"bottom-profile-btn"
+);
+
+openProfileMenu();
+
+}
+);
+
+}
+
+})();
+
+</script>
+
 
 <script
-    src="{{ url_for('static', filename='script.js') }}"
+src="{{ url_for('static', filename='script.js') }}"
 ></script>
 
 
-</body>
+<!-- BOTTOM NAVIGATION -->
 
+<nav
+class="bottom-app-nav"
+id="bottom-app-nav"
+aria-label="Primary navigation"
+>
+
+<button
+class="bottom-nav-item active"
+type="button"
+data-bottom-view="home"
+id="bottom-home-btn"
+>
+
+<span class="bottom-nav-icon">⌂</span>
+
+<span class="bottom-nav-label">
+Home
+</span>
+
+</button>
+
+
+<button
+class="bottom-nav-item"
+type="button"
+data-bottom-view="analytics"
+id="bottom-analytics-btn"
+>
+
+<span class="bottom-nav-icon">▥</span>
+
+<span class="bottom-nav-label">
+Analytics
+</span>
+
+</button>
+
+
+<button
+class="bottom-add-button"
+type="button"
+id="bottom-add-transaction-btn"
+aria-label="Add Transaction"
+>
+
+<span>+</span>
+
+<small>
+Add Transaction
+</small>
+
+</button>
+
+
+<button
+class="bottom-nav-item"
+type="button"
+data-bottom-view="history"
+id="bottom-history-btn"
+>
+
+<span class="bottom-nav-icon">◷</span>
+
+<span class="bottom-nav-label">
+History
+</span>
+
+</button>
+
+
+<button
+class="bottom-nav-item"
+type="button"
+data-bottom-view="profile"
+id="bottom-profile-btn"
+>
+
+<span class="bottom-nav-icon">♙</span>
+
+<span class="bottom-nav-label">
+Profile
+</span>
+
+</button>
+
+</nav>
+
+
+</body>
 </html>
